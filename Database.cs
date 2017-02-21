@@ -23,6 +23,9 @@ namespace Stazis
 		public readonly List<string> namesOfTables;
 		public DBmode TypeOfDB { get{return typeOfDB;} }
 		public enum DBmode { XLS, XLSX, CSV, SQLite};
+		SQLiteFactory factory = (SQLiteFactory) System.Data.Common.DbProviderFactories.GetFactory("System.Data.SQLite");
+		SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection();
+		FileStream fs;
 		
 		public Database(string pathOfDBFile)
 		{
@@ -51,8 +54,7 @@ namespace Stazis
 		
 		void LoadDatabase()
 		{
-			using (FileStream fs = new FileStream(pathOfDatabase, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-			{
+			fs = new FileStream(pathOfDatabase, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 				IExcelDataReader excelReader;
 				switch (Path.GetExtension(pathOfDatabase))
 				{
@@ -63,9 +65,8 @@ namespace Stazis
 						foreach (DataTable table in excelReader.AsDataSet().Tables)
 						{
 							namesOfTables.Add(table.TableName);
-							listOfTables.Tables.Add(table.Copy());
+							listOfTables.Tables.Add(table);
 						}
-						excelReader.Close();
 						break;
 					case ".xlsx":
 						typeOfDB = DBmode.XLSX;
@@ -74,9 +75,8 @@ namespace Stazis
 						foreach (DataTable table in excelReader.AsDataSet().Tables)
 						{
 							namesOfTables.Add(table.TableName);
-							listOfTables.Tables.Add(table.Copy());
+							listOfTables.Tables.Add(table);
 						}
-						excelReader.Close();
 						break;
 					case ".csv":
 						typeOfDB = DBmode.CSV;
@@ -87,28 +87,14 @@ namespace Stazis
 					case ".cdb":
 					case ".sqlite3":
 						typeOfDB = DBmode.SQLite;
-						SQLiteFactory factory = (SQLiteFactory) System.Data.Common.DbProviderFactories.GetFactory("System.Data.SQLite");
-						SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection();
-						SQLiteDataAdapter adapter = new SQLiteDataAdapter();
 						connection.ConnectionString = "Data Source = " + pathOfDatabase;
 						connection.Open();
 						SQLiteDataAdapter tmpadapter = new SQLiteDataAdapter("SELECT name FROM sqlite_master WHERE type = 'table'", connection);
-						DataTable tmpDT = new DataTable();
+						DataSet tmpDT = new DataSet();
 						tmpadapter.Fill(tmpDT);
-						foreach (DataRow row in tmpDT.Rows)
-							if (!row.ItemArray.GetValue(0).ToString().Contains("sqlite")) namesOfTables.Add(row.ItemArray.GetValue(0).ToString());
-						foreach (string table in namesOfTables) 
-						{
-							adapter = new SQLiteDataAdapter("select * from " + table, connection);
-							DataTable tmpdt = new DataTable();
-							adapter.Fill(tmpdt);
-							listOfTables.Tables.Add(tmpdt.Copy());
-						}
-						connection.Close();		
+						listOfTables.Tables.AddRange(tmpDT.Tables.Cast<DataTable>().ToArray());
 						break;
 				}
-				GC.Collect();
-			}
 		}
 		
 		public static string GetImportFileTypes()
