@@ -132,6 +132,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddRecord.cs" />
+    <Compile Include="AddRecord.Designer.cs">
+      <DependentUpon>AddRecord.cs</DependentUpon>
+    </Compile>
     <Compile Include="Database.cs" />
     <Compile Include="DataOperationsTesting.cs" />
     <Compile Include="DiagramForm.cs" />
@@ -175,6 +179,9 @@
     <Compile Include="RecentAndDirectives.Designer.cs">
       <DependentUpon>RecentAndDirectives.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AddRecord.resx">
+      <DependentUpon>AddRecord.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DiagramForm.resx">
       <DependentUpon>DiagramForm.cs</DependentUpon>
     </EmbeddedResource>
