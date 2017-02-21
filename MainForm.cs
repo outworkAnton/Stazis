@@ -68,7 +68,7 @@ namespace Stazis
 						toolStripProgressBar1.Visible = false;
 						TimeSpan span = perfWatch.Elapsed;
 						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(DB.pathOfDatabase), DB.GetTypeOfDBFile());
-						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время обработки запроса: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 					}
 					else
 					{
@@ -167,7 +167,7 @@ namespace Stazis
 			FormatDataGrid();
 			toolStripProgressBar1.Visible = false;
 			TimeSpan span = perfWatch.Elapsed;
-			toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+			toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время обработки запроса: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 		}
 
 		void UnformatDataGrid()
@@ -262,7 +262,7 @@ namespace Stazis
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripProgressBar1.Visible = false;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки по запросу '{4}' в столбце <{5}> : {3} (Время загрузки: {0} мин {1} сек {2} мсек)", 
+					toolStripStatusLabel1.Text = string.Format("Результаты выборки по запросу '{4}' в столбце <{5}> : {3} (Время обработки запроса: {0} мин {1} сек {2} мсек)", 
 					                                           span.Minutes, 
 					                                           span.Seconds, 
 					                                           span.Milliseconds, 
@@ -320,7 +320,7 @@ namespace Stazis
 				MaindataGrid.DataSource = saveSearchResult == SaveSearchResult.Yes ? backUpSet[SheetIndex].Rows.Count > 0 ? backUpSet[SheetIndex] : DB.listOfTables.Tables[SheetIndex] : DB.listOfTables.Tables[SheetIndex];
 				FormatDataGrid();
 				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время обработки запроса: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 				MaindataGrid.CurrentCell = null;
 			}
 			catch (Exception exc)
@@ -427,7 +427,7 @@ namespace Stazis
 					}
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки чисел {6} '{4}' в столбце <{5}> : {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count, SearchInteger, columnName, SearchOption);
+					toolStripStatusLabel1.Text = string.Format("Результаты выборки чисел {6} '{4}' в столбце <{5}> : {3} (Время обработки запроса: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count, SearchInteger, columnName, SearchOption);
 					MaindataGrid.CurrentCell = null;
 				}
 			} 
@@ -476,7 +476,7 @@ namespace Stazis
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки по диапазону дат (с {0} по {1}) : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", Start, End, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel1.Text = string.Format("Результаты выборки по диапазону дат (с {0} по {1}) : {2} (Время обработки запроса: {3} мин {4} сек {5} мсек)", Start, End, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
 					MaindataGrid.CurrentCell = null;
 				}
 			} 
@@ -549,7 +549,7 @@ namespace Stazis
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Количество записей удовлетворяющих поисковому запросу '{0}' в столбце <{1}> : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", SearchText, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel1.Text = string.Format("Количество записей удовлетворяющих поисковому запросу '{0}' в столбце <{1}> : {2} (Время обработки запроса: {3} мин {4} сек {5} мсек)", SearchText, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
 					MaindataGrid.CurrentCell = null;
 				}
 			} 
@@ -570,7 +570,7 @@ namespace Stazis
 				ConvertGridColumns(typesColumnList);
 				FormatDataGrid();
 				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время обработки запроса: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 				MaindataGrid.CurrentCell = null;
 			} 
 			catch (Exception exc) 
@@ -610,7 +610,7 @@ namespace Stazis
 						toolStripProgressBar1.Visible = false;
 						TimeSpan span = perfWatch.Elapsed;
 						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(DB.pathOfDatabase), DB.GetTypeOfDBFile());
-						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время обработки запроса: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 					}
 					else
 					{
@@ -660,7 +660,7 @@ namespace Stazis
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки по запросу '{0}' в столбце <{1}> : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", CellValue, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel1.Text = string.Format("Результаты выборки по запросу '{0}' в столбце <{1}> : {2} (Время обработки запроса: {3} мин {4} сек {5} мсек)", CellValue, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
 					MaindataGrid.CurrentCell = null;
 				}
 			}

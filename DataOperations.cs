@@ -24,7 +24,7 @@ namespace Stazis
 		{
 			DataTable tmp = Source.Clone();
 			var query =
-				from order in Source.AsEnumerable()
+				from order in Source.AsEnumerable().AsParallel().AsOrdered().AsEnumerable()
 				where order.Field<DateTime>(Column) != null
 				where order.Field<DateTime>(Column) >= Start
 				where order.Field<DateTime>(Column) <= End
@@ -41,7 +41,7 @@ namespace Stazis
 			{
 				case SearchTextMode.Equals:
 					var query =
-						from order in Source.AsEnumerable()
+						from order in Source.AsEnumerable().AsParallel().AsOrdered().AsEnumerable()
 						where order.Field<string>(Column) != null
 						where order.Field<string>(Column).ToUpper().Equals(SearchText.ToUpper())
 						select order;
@@ -49,7 +49,7 @@ namespace Stazis
 					break;
 				case SearchTextMode.StartWith:
 					var queryStart =
-						from order in Source.AsEnumerable()
+						from order in Source.AsEnumerable().AsParallel().AsOrdered().AsEnumerable()
 						where order.Field<string>(Column) != null
 						where order.Field<string>(Column).StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)
 						select order;
@@ -57,7 +57,7 @@ namespace Stazis
 					break;
 				case SearchTextMode.Contains:
 					var queryCont =
-						from order in Source.AsEnumerable()
+						from order in Source.AsEnumerable().AsParallel().AsOrdered().AsEnumerable()
 						where order.Field<string>(Column) != null
 						where order.Field<string>(Column).ToUpper().Contains(SearchText.ToUpper())
 						select order;
@@ -74,7 +74,7 @@ namespace Stazis
 			{
 				case SearchIntMode.EqualTo:
 					var query =
-						from order in Source.AsEnumerable()
+						from order in Source.AsEnumerable().AsParallel().AsOrdered().AsEnumerable()
 						where order.Field<double>(Column) != null
 						where order.Field<double>(Column).Equals(SearchInt)
 						select order;
@@ -82,7 +82,7 @@ namespace Stazis
 					break;
 				case SearchIntMode.LargerThen:
 					var queryStart =
-						from order in Source.AsEnumerable()
+						from order in Source.AsEnumerable().AsParallel().AsOrdered().AsEnumerable()
 						where order.Field<double>(Column) != null
 						where order.Field<double>(Column) > SearchInt
 						select order;
@@ -90,7 +90,7 @@ namespace Stazis
 					break;
 				case SearchIntMode.SmallerThen:
 					var queryCont =
-						from order in Source.AsEnumerable()
+						from order in Source.AsEnumerable().AsParallel().AsOrdered().AsEnumerable()
 						where order.Field<double>(Column) != null
 						where order.Field<double>(Column) < SearchInt
 						select order;
@@ -108,7 +108,7 @@ namespace Stazis
 			                                  ToArray();
 			string header = string.Join(";", columnNames);
 			lines.Add(header);
-			var valueLines = dataTable.AsEnumerable().Select(row => string.Join(";", row.ItemArray));            
+			var valueLines = dataTable.AsEnumerable().AsParallel().AsOrdered().AsEnumerable().Select(row => string.Join(";", row.ItemArray));
 			lines.AddRange(valueLines);
 			File.WriteAllLines(pathOfCSVFile, lines, Encoding.Default);
 		}

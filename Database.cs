@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Excel;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace Stazis
 		public readonly List<string> namesOfTables;
 		public DBmode TypeOfDB { get{return typeOfDB;} }
 		public enum DBmode { XLS, XLSX, CSV, SQLite};
+		
 		
 		public Database(string pathOfDBFile)
 		{
@@ -60,10 +62,11 @@ namespace Stazis
 						typeOfDB = DBmode.XLS;
 						excelReader = ExcelReaderFactory.CreateBinaryReader(fs);
 						excelReader.IsFirstRowAsColumnNames = true;
-						foreach (DataTable table in excelReader.AsDataSet().Tables)
+						IEnumerable<DataTable> dtbl = excelReader.AsDataSet(true).Tables.AsParallel().AsOrdered().Cast<DataTable>().AsEnumerable();
+						foreach(DataTable dt in dtbl)
 						{
-							namesOfTables.Add(table.TableName);
-							listOfTables.Tables.Add(table.Copy());
+							namesOfTables.Add(dt.TableName);
+							listOfTables.Tables.Add(dt.Copy());
 						}
 						excelReader.Close();
 						break;
@@ -71,10 +74,11 @@ namespace Stazis
 						typeOfDB = DBmode.XLSX;
 						excelReader = ExcelReaderFactory.CreateOpenXmlReader(fs);
 						excelReader.IsFirstRowAsColumnNames = true;
-						foreach (DataTable table in excelReader.AsDataSet().Tables)
+						IEnumerable<DataTable> dtblX = excelReader.AsDataSet(true).Tables.AsParallel().AsOrdered().Cast<DataTable>().AsEnumerable();
+						foreach(DataTable dt in dtblX)
 						{
-							namesOfTables.Add(table.TableName);
-							listOfTables.Tables.Add(table.Copy());
+							namesOfTables.Add(dt.TableName);
+							listOfTables.Tables.Add(dt.Copy());
 						}
 						excelReader.Close();
 						break;
@@ -143,8 +147,8 @@ namespace Stazis
                         string[] fieldData = csvReader.ReadFields();
                         for (int i = 0; i < colFields.Count; i++)
                         {
-						if (fieldData[i] == "")
-							fieldData[i] = null;
+                        	if (string.IsNullOrEmpty(fieldData[i]))
+								fieldData[i] = null;
                         }
                         csvData.Rows.Add(fieldData);
                     }
