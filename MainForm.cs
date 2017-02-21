@@ -57,9 +57,8 @@ namespace Stazis
 							Application.DoEvents();
 						}
 						toolStripStatusLabel2.Text = string.Empty;
-						DB.currentTableIndex = tabControl1.SelectedIndex;
 						GetTablesList(DB);
-						MaindataGrid.DataSource = DB.listOfTables.Tables[0];
+						MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[0];
 						typesColumnList = GetTypesOfDataTableColumns();
 						CheckViewOfGrid();
 						FormatDataGrid();
@@ -162,9 +161,8 @@ namespace Stazis
 				Application.DoEvents();
 			}
 			toolStripStatusLabel2.Text = string.Empty;
-			DB.currentTableIndex = tabControl1.SelectedIndex;
 			GetTablesList(DB);
-			MaindataGrid.DataSource = DB.listOfTables.Tables[0];
+			MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[0];
 			CheckViewOfGrid();
 			FormatDataGrid();
 			toolStripProgressBar1.Visible = false;
@@ -322,7 +320,7 @@ namespace Stazis
 				MaindataGrid.DataSource = saveSearchResult == SaveSearchResult.Yes ? backUpSet[SheetIndex].Rows.Count > 0 ? backUpSet[SheetIndex] : DB.listOfTables.Tables[SheetIndex] : DB.listOfTables.Tables[SheetIndex];
 				FormatDataGrid();
 				TimeSpan span = perfWatch.Elapsed;
-				DB.currentTableIndex = tabControl1.SelectedIndex;
+				DB.currentTable = tabControl1.SelectedIndex;
 				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 				MaindataGrid.CurrentCell = null;
 			}
@@ -569,8 +567,7 @@ namespace Stazis
 			{
 				Stopwatch perfWatch = new Stopwatch();
 				perfWatch.Start();
-				MaindataGrid.DataSource = DB.listOfTables.Tables[tabControl1.SelectedIndex];
-				DB.currentTableIndex = tabControl1.SelectedIndex;
+				MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[tabControl1.SelectedIndex];
 				ConvertGridColumns(typesColumnList);
 				FormatDataGrid();
 				TimeSpan span = perfWatch.Elapsed;
@@ -607,9 +604,8 @@ namespace Stazis
 							Application.DoEvents();
 						}
 						toolStripStatusLabel2.Text = string.Empty;
-						DB.currentTableIndex = tabControl1.SelectedIndex;
 						GetTablesList(DB);
-						MaindataGrid.DataSource = DB.listOfTables.Tables[0];
+						MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[0];
 						CheckViewOfGrid();
 						FormatDataGrid();
 						toolStripProgressBar1.Visible = false;
