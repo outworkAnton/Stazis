@@ -10,9 +10,16 @@ namespace Stazis
 	/// </summary>
 	public partial class AddRecord : Form
 	{
+		public Database DB { get; set; }
+		
 		public AddRecord()
 		{
 			InitializeComponent();
+		}
+		
+		void ExploreData()
+		{
+			
 		}
 	}
 }

@@ -23,6 +23,7 @@ namespace Stazis
 		public readonly List<string> namesOfTables;
 		public DBmode TypeOfDB { get{return typeOfDB;} }
 		public enum DBmode { XLS, XLSX, CSV, SQLite};
+		public int currentTableIndex { get; set; }
 		
 		public Database(string pathOfDBFile)
 		{
