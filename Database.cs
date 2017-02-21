@@ -24,7 +24,7 @@ namespace Stazis
 		public DBmode TypeOfDB { get{return typeOfDB;} }
 		public enum DBmode { XLS, XLSX, CSV, SQLite};
 		SQLiteFactory factory = (SQLiteFactory) System.Data.Common.DbProviderFactories.GetFactory("System.Data.SQLite");
-		SQLiteConnection connection = (SQLiteConnection) factory.CreateConnection();
+		SQLiteConnection connection;
 		FileStream fs;
 		
 		public Database(string pathOfDBFile)
@@ -87,12 +87,15 @@ namespace Stazis
 					case ".cdb":
 					case ".sqlite3":
 						typeOfDB = DBmode.SQLite;
+						connection = (SQLiteConnection) factory.CreateConnection();
 						connection.ConnectionString = "Data Source = " + pathOfDatabase;
 						connection.Open();
 						SQLiteDataAdapter tmpadapter = new SQLiteDataAdapter("SELECT name FROM sqlite_master WHERE type = 'table'", connection);
 						DataSet tmpDT = new DataSet();
 						tmpadapter.Fill(tmpDT);
 						listOfTables.Tables.AddRange(tmpDT.Tables.Cast<DataTable>().ToArray());
+						foreach (DataTable tableName in listOfTables.Tables)
+							namesOfTables.Add(tableName.TableName);
 						break;
 				}
 		}
