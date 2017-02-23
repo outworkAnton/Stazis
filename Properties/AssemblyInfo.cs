@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("САТ Стазис")]
 [assembly: AssemblyDescription("Статико-аналитический терминал")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Мазуров Антон Николаевич ОТД т/п МАПП Светогорск")]
+[assembly: AssemblyCompany("Мазуров Антон Николаевич")]
 [assembly: AssemblyProduct("САТ Стазис")]
-[assembly: AssemblyCopyright("Copyright © Мазуров Антон Николаевич 2016")]
+[assembly: AssemblyCopyright("Copyright © Мазуров Антон Николаевич 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // Можно задать все значения или принять номер построения и номер редакции по умолчанию, 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.6.*")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("2.8.*")]
+[assembly: AssemblyFileVersion("2." + Year + "." + Month + "." + Day)] //Version.Year.Month.Day
