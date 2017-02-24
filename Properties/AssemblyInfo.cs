@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+
 
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
@@ -33,4 +35,4 @@ using System.Runtime.InteropServices;
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2.8.*")]
-[assembly: AssemblyFileVersion("2." + Year + "." + Month + "." + Day)] //Version.Year.Month.Day
+[assembly: AssemblyFileVersion("2.7.2.24")] //Version.Year.Month.Day

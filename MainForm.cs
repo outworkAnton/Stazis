@@ -320,7 +320,7 @@ namespace Stazis
 				MaindataGrid.DataSource = saveSearchResult == SaveSearchResult.Yes ? backUpSet[SheetIndex].Rows.Count > 0 ? backUpSet[SheetIndex] : DB.listOfTables.Tables[SheetIndex] : DB.listOfTables.Tables[SheetIndex];
 				FormatDataGrid();
 				TimeSpan span = perfWatch.Elapsed;
-				DB.currentTable = tabControl1.SelectedIndex;
+				MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[tabControl1.SelectedIndex];;
 				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 				MaindataGrid.CurrentCell = null;
 			}
@@ -916,6 +916,13 @@ namespace Stazis
 			TimeSpan span = perfWatch.Elapsed;
 			toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
 			MaindataGrid.CurrentCell = null;
+		}
+		
+		void добавитьЗаписьВИсточникToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			AddRecord addRecForm = new AddRecord();
+			addRecForm.DB = DB;
+			addRecForm.ShowDialog();
 		}
 	}
 }

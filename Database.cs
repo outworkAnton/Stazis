@@ -61,7 +61,7 @@ namespace Stazis
 						typeOfDB = DBmode.XLS;
 						excelReader = ExcelReaderFactory.CreateBinaryReader(fs);
 						excelReader.IsFirstRowAsColumnNames = true;
-						foreach (DataTable table in excelReader.AsDataSet().Tables)
+						foreach (DataTable table in excelReader.AsDataSet(true).Tables)
 						{
 							namesOfTables.Add(table.TableName);
 							listOfTables.Tables.Add(table.Copy());
@@ -72,7 +72,7 @@ namespace Stazis
 						typeOfDB = DBmode.XLSX;
 						excelReader = ExcelReaderFactory.CreateOpenXmlReader(fs);
 						excelReader.IsFirstRowAsColumnNames = true;
-						foreach (DataTable table in excelReader.AsDataSet().Tables)
+						foreach (DataTable table in excelReader.AsDataSet(true).Tables)
 						{
 							namesOfTables.Add(table.TableName);
 							listOfTables.Tables.Add(table.Copy());
