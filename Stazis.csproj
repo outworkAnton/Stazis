@@ -74,7 +74,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="LogManager">
-      <HintPath>..\..\LogManager\LogManager\bin\Release\LogManager.dll</HintPath>
+      <HintPath>LogManager.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="NPOI, Version=2.2.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
@@ -98,7 +98,7 @@
     </Reference>
     <Reference Include="nunit.framework" />
     <Reference Include="SettingsTools">
-      <HintPath>..\..\SettingsTools\SettingsTools\bin\Debug\SettingsTools.dll</HintPath>
+      <HintPath>SettingsTools.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
