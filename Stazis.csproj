@@ -93,10 +93,10 @@
       <HintPath>packages\NPOI.2.2.1\lib\net40\NPOI.OpenXmlFormats.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NUnit.Framework">
-      <HintPath>$(SharpDevelopBinPath)\Tools\NUnit\NUnit.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework" />
+    <Reference Include="nunit.framework, Version=3.6.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>packages\NUnit.3.6.1\lib\net40\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="SettingsTools">
       <HintPath>SettingsTools.dll</HintPath>
     </Reference>
@@ -132,13 +132,17 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddRecord.cs" />
+    <Compile Include="AddRecord.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="AddRecord.Designer.cs">
       <DependentUpon>AddRecord.cs</DependentUpon>
     </Compile>
     <Compile Include="Database.cs" />
     <Compile Include="DataOperationsTesting.cs" />
-    <Compile Include="DiagramForm.cs" />
+    <Compile Include="DiagramForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="DiagramForm.Designer.cs">
       <DependentUpon>DiagramForm.cs</DependentUpon>
     </Compile>
@@ -149,7 +153,9 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DataOperations.cs" />
-    <Compile Include="Multilevels.cs" />
+    <Compile Include="Multilevels.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Multilevels.Designer.cs">
       <DependentUpon>Multilevels.cs</DependentUpon>
     </Compile>
