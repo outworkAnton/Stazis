@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using Excel;
 using System;
 using System.Collections.Generic;
@@ -10,12 +9,12 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace Stazis
 {
-	/// <summary>
-	/// Класс обслуживающий создание объекта базы данных
-	/// </summary>
-	/// 
-	
-	public class Database
+    /// <summary>
+    /// Класс обслуживающий создание объекта базы данных
+    /// </summary>
+    /// 
+
+    public class Database
 	{
 		public readonly string pathOfDatabase;
 		DBmode typeOfDB;
