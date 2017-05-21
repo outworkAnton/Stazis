@@ -223,9 +223,6 @@ namespace Stazis
 			dataGrid.Columns[columnIndex].ValueType = type;
 			dataGrid[col, row].Selected = true;
 		}
-		
-		
-
 
 		public static double SearchDoubleInString(string InputText)
 		{
@@ -326,7 +323,7 @@ namespace Stazis
 			}
 		}
 		
-		public static int ReplaceInDataTable(Database dataBase, int sheetIndex, int Column, CheckedListBox.CheckedItemCollection InElements, string OutElement, bool ReplaceAlsoInSourceFile)
+		public static int ChangeRecords(Database dataBase, int sheetIndex, int Column, CheckedListBox.CheckedItemCollection InElements, string OutElement)
         {
             int Proceed = 0;
             List<string> elementList = InElements.Cast<string>().ToList<string>();
@@ -334,58 +331,16 @@ namespace Stazis
                 OutElement = String.Empty;
             if (elementList.Contains("<пустое значение>"))
                 elementList[elementList.IndexOf("<пустое значение>")] = String.Empty;
-            HSSFWorkbook WorkbookXLS = new HSSFWorkbook();
-            XSSFWorkbook WorkbookXLSX = new XSSFWorkbook();
-            ISheet currentSheet = null;
-            FileStream fs = null;
-			if (ReplaceAlsoInSourceFile && !FileIsAvailable(dataBase.pathOfDatabase))
-			{
-				if (MessageBox.Show("Файл открыт в другой программе.\nПродолжить процесс замены в загруженном в программу экземпляре?", "Заменить в программе без сохранения в файле?", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)
-					return 0;
-				ReplaceAlsoInSourceFile = false;
-			}
-			if (ReplaceAlsoInSourceFile)
-				using (fs = new FileStream(dataBase.pathOfDatabase, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-					switch (dataBase.TypeOfDB)
-					{
-						case Database.DBmode.XLS:
-							WorkbookXLS = new HSSFWorkbook(fs);
-							currentSheet = WorkbookXLS.GetSheetAt(sheetIndex);
-							break;
-						case Database.DBmode.XLSX:
-							WorkbookXLSX = new XSSFWorkbook(fs);
-							currentSheet = WorkbookXLSX.GetSheetAt(sheetIndex);
-							break;
-					}
             for (int row = 0; row < dataBase.listOfTables.Tables[sheetIndex].Rows.Count; row++)
             {
                 if (elementList.Contains(dataBase.listOfTables.Tables[sheetIndex].Rows[row][Column].ToString()))
                 {
                     dataBase.listOfTables.Tables[sheetIndex].Rows[row][Column] = OutElement;
-                    if (ReplaceAlsoInSourceFile)
-                        currentSheet.GetRow(row + 1).GetCell(Column).SetCellValue(OutElement);
                     Proceed++;
                 }
                 Application.DoEvents();
             }
             dataBase.listOfTables.AcceptChanges();
-            if (ReplaceAlsoInSourceFile)
-            {
-                using (fs = new FileStream(dataBase.pathOfDatabase, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                switch (dataBase.TypeOfDB)
-                {
-                    case Database.DBmode.XLS:
-                            WorkbookXLS.Write(fs);
-                        break;
-                    case Database.DBmode.XLSX:
-                            WorkbookXLSX.Write(fs);
-                        break;
-                }
-                fs.Close();
-                WorkbookXLS = null;
-                WorkbookXLSX = null;
-                currentSheet = null;
-            }
             return Proceed;
         }
 		

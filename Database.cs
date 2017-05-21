@@ -51,7 +51,7 @@ namespace Stazis
 		
 		void LoadDatabase()
 		{
-			using (FileStream fs = new FileStream(pathOfDatabase, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+			using (Stream fs = new FileStream(pathOfDatabase, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
 				IExcelDataReader excelReader;
 				switch (Path.GetExtension(pathOfDatabase))
@@ -114,10 +114,10 @@ namespace Stazis
 		public static string GetImportFileTypes()
 		{
 			return 	"Книга Excel 97-2003|*.xls" +
-					"|Книга Excel 2007-...|*.xlsx" +
-					"|Файл CSV|*.csv" +
-					"|База данных SQLite|*.cdb;*.db;*.sqlite3" +
-					"|Все файлы|*.*";
+							"|Книга Excel 2007-...|*.xlsx" +
+							"|Файл CSV|*.csv" +
+							"|База данных SQLite|*.cdb;*.db;*.sqlite3" +
+							"|Все файлы|*.*";
 		}
 		
 		DataTable GetDataTableFromCSVFile(Stream fileStream)

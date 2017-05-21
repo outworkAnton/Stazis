@@ -135,6 +135,7 @@
       <DependentUpon>AddRecord.cs</DependentUpon>
     </Compile>
     <Compile Include="Database.cs" />
+    <Compile Include="DataBaseAbstract.cs" />
     <Compile Include="DataOperationsTesting.cs" />
     <Compile Include="DiagramForm.cs">
       <SubType>Form</SubType>
@@ -142,6 +143,8 @@
     <Compile Include="DiagramForm.Designer.cs">
       <DependentUpon>DiagramForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExcelDatabase.cs" />
+    <Compile Include="IChangebleDatabase.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
