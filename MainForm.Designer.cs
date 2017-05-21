@@ -63,9 +63,10 @@
         	this.поискToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
         	this.списокУникальныхЗначенийToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
         	this.пакетныйЗаменительToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+        	this.скрытьСтолбецToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
         	this.tabControl1 = new System.Windows.Forms.TabControl();
         	this.tabPage1 = new System.Windows.Forms.TabPage();
-        	this.скрытьСтолбецToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+        	this.добавитьЗаписьВИсточникToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
         	((System.ComponentModel.ISupportInitialize)(this.MaindataGrid)).BeginInit();
         	this.menuStrip1.SuspendLayout();
         	this.statusStrip1.SuspendLayout();
@@ -124,7 +125,8 @@
         	// 
         	this.данныеToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 			this.сменитьИсточникДанныхToolStripMenuItem,
-			this.экспортВExcelToolStripMenuItem});
+			this.экспортВExcelToolStripMenuItem,
+			this.добавитьЗаписьВИсточникToolStripMenuItem});
         	this.данныеToolStripMenuItem.Name = "данныеToolStripMenuItem";
         	this.данныеToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
         	this.данныеToolStripMenuItem.Text = "Данные";
@@ -132,14 +134,14 @@
         	// сменитьИсточникДанныхToolStripMenuItem
         	// 
         	this.сменитьИсточникДанныхToolStripMenuItem.Name = "сменитьИсточникДанныхToolStripMenuItem";
-        	this.сменитьИсточникДанныхToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+        	this.сменитьИсточникДанныхToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
         	this.сменитьИсточникДанныхToolStripMenuItem.Text = "Выбрать источник данных...";
         	this.сменитьИсточникДанныхToolStripMenuItem.Click += new System.EventHandler(this.сменитьИсточникДанныхToolStripMenuItem_Click);
         	// 
         	// экспортВExcelToolStripMenuItem
         	// 
         	this.экспортВExcelToolStripMenuItem.Name = "экспортВExcelToolStripMenuItem";
-        	this.экспортВExcelToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+        	this.экспортВExcelToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
         	this.экспортВExcelToolStripMenuItem.Text = "Экспорт данных...";
         	this.экспортВExcelToolStripMenuItem.Click += new System.EventHandler(this.экспортВExcelToolStripMenuItem_Click);
         	// 
@@ -272,7 +274,7 @@
 			this.пакетныйЗаменительToolStripMenuItem,
 			this.скрытьСтолбецToolStripMenuItem});
         	this.contextMenuStrip1.Name = "contextMenuStrip1";
-        	this.contextMenuStrip1.Size = new System.Drawing.Size(249, 114);
+        	this.contextMenuStrip1.Size = new System.Drawing.Size(249, 92);
         	// 
         	// типПолейСтолбцаToolStripMenuItem
         	// 
@@ -348,6 +350,13 @@
         	this.пакетныйЗаменительToolStripMenuItem.Text = "Пакетный корректор записей";
         	this.пакетныйЗаменительToolStripMenuItem.Click += new System.EventHandler(this.пакетныйЗаменительToolStripMenuItem_Click);
         	// 
+        	// скрытьСтолбецToolStripMenuItem
+        	// 
+        	this.скрытьСтолбецToolStripMenuItem.Name = "скрытьСтолбецToolStripMenuItem";
+        	this.скрытьСтолбецToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+        	this.скрытьСтолбецToolStripMenuItem.Text = "Скрыть столбец";
+        	this.скрытьСтолбецToolStripMenuItem.Click += new System.EventHandler(this.скрытьСтолбецToolStripMenuItem_Click);
+        	// 
         	// tabControl1
         	// 
         	this.tabControl1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
@@ -370,12 +379,12 @@
         	this.tabPage1.TabIndex = 0;
         	this.tabPage1.UseVisualStyleBackColor = true;
         	// 
-        	// скрытьСтолбецToolStripMenuItem
+        	// добавитьЗаписьВИсточникToolStripMenuItem
         	// 
-        	this.скрытьСтолбецToolStripMenuItem.Name = "скрытьСтолбецToolStripMenuItem";
-        	this.скрытьСтолбецToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
-        	this.скрытьСтолбецToolStripMenuItem.Text = "Скрыть столбец";
-        	this.скрытьСтолбецToolStripMenuItem.Click += new System.EventHandler(this.скрытьСтолбецToolStripMenuItem_Click);
+        	this.добавитьЗаписьВИсточникToolStripMenuItem.Name = "добавитьЗаписьВИсточникToolStripMenuItem";
+        	this.добавитьЗаписьВИсточникToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
+        	this.добавитьЗаписьВИсточникToolStripMenuItem.Text = "Добавить запись в источник...";
+        	this.добавитьЗаписьВИсточникToolStripMenuItem.Click += new System.EventHandler(this.добавитьЗаписьВИсточникToolStripMenuItem_Click);
         	// 
         	// MainForm
         	// 
@@ -441,6 +450,7 @@
         public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripMenuItem многоуровневыйАнализToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem скрытьСтолбецToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem добавитьЗаписьВИсточникToolStripMenuItem;
     }
 }
 

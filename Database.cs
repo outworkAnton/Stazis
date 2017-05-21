@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using Excel;
 using System;
 using System.Collections.Generic;
@@ -10,12 +9,12 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace Stazis
 {
-	/// <summary>
-	/// Класс обслуживающий создание объекта базы данных
-	/// </summary>
-	/// 
-	
-	public class Database
+    /// <summary>
+    /// Класс обслуживающий создание объекта базы данных
+    /// </summary>
+    /// 
+
+    public class Database
 	{
 		public readonly string pathOfDatabase;
 		DBmode typeOfDB;
@@ -23,6 +22,7 @@ namespace Stazis
 		public readonly List<string> namesOfTables;
 		public DBmode TypeOfDB { get{return typeOfDB;} }
 		public enum DBmode { XLS, XLSX, CSV, SQLite};
+		public DataTable currentTable { get; set; }
 		
 		public Database(string pathOfDBFile)
 		{
@@ -51,7 +51,7 @@ namespace Stazis
 		
 		void LoadDatabase()
 		{
-			using (FileStream fs = new FileStream(pathOfDatabase, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+			using (Stream fs = new FileStream(pathOfDatabase, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
 				IExcelDataReader excelReader;
 				switch (Path.GetExtension(pathOfDatabase))
@@ -60,7 +60,7 @@ namespace Stazis
 						typeOfDB = DBmode.XLS;
 						excelReader = ExcelReaderFactory.CreateBinaryReader(fs);
 						excelReader.IsFirstRowAsColumnNames = true;
-						foreach (DataTable table in excelReader.AsDataSet().Tables)
+						foreach (DataTable table in excelReader.AsDataSet(true).Tables)
 						{
 							namesOfTables.Add(table.TableName);
 							listOfTables.Tables.Add(table.Copy());
@@ -71,7 +71,7 @@ namespace Stazis
 						typeOfDB = DBmode.XLSX;
 						excelReader = ExcelReaderFactory.CreateOpenXmlReader(fs);
 						excelReader.IsFirstRowAsColumnNames = true;
-						foreach (DataTable table in excelReader.AsDataSet().Tables)
+						foreach (DataTable table in excelReader.AsDataSet(true).Tables)
 						{
 							namesOfTables.Add(table.TableName);
 							listOfTables.Tables.Add(table.Copy());
@@ -114,10 +114,10 @@ namespace Stazis
 		public static string GetImportFileTypes()
 		{
 			return 	"Книга Excel 97-2003|*.xls" +
-					"|Книга Excel 2007-...|*.xlsx" +
-					"|Файл CSV|*.csv" +
-					"|База данных SQLite|*.cdb;*.db;*.sqlite3" +
-					"|Все файлы|*.*";
+							"|Книга Excel 2007-...|*.xlsx" +
+							"|Файл CSV|*.csv" +
+							"|База данных SQLite|*.cdb;*.db;*.sqlite3" +
+							"|Все файлы|*.*";
 		}
 		
 		DataTable GetDataTableFromCSVFile(Stream fileStream)

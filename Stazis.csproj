@@ -74,31 +74,27 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="LogManager">
-      <HintPath>..\..\LogManager\LogManager\bin\Release\LogManager.dll</HintPath>
+      <HintPath>LogManager.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="NPOI, Version=2.2.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
-      <HintPath>packages\NPOI.2.2.1\lib\net40\NPOI.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="NPOI, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>packages\NPOI.2.3.0\lib\net40\NPOI.dll</HintPath>
     </Reference>
-    <Reference Include="NPOI.OOXML, Version=2.2.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
-      <HintPath>packages\NPOI.2.2.1\lib\net40\NPOI.OOXML.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="NPOI.OOXML, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>packages\NPOI.2.3.0\lib\net40\NPOI.OOXML.dll</HintPath>
     </Reference>
-    <Reference Include="NPOI.OpenXml4Net, Version=2.2.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
-      <HintPath>packages\NPOI.2.2.1\lib\net40\NPOI.OpenXml4Net.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="NPOI.OpenXml4Net, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>packages\NPOI.2.3.0\lib\net40\NPOI.OpenXml4Net.dll</HintPath>
     </Reference>
-    <Reference Include="NPOI.OpenXmlFormats, Version=2.2.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
-      <HintPath>packages\NPOI.2.2.1\lib\net40\NPOI.OpenXmlFormats.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NUnit.Framework">
-      <HintPath>$(SharpDevelopBinPath)\Tools\NUnit\NUnit.Framework.dll</HintPath>
+    <Reference Include="NPOI.OpenXmlFormats, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>packages\NPOI.2.3.0\lib\net40\NPOI.OpenXmlFormats.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework" />
+    <Reference Include="nunit.framework, Version=3.6.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>packages\NUnit.3.6.1\lib\net40\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="SettingsTools">
-      <HintPath>..\..\SettingsTools\SettingsTools\bin\Debug\SettingsTools.dll</HintPath>
+      <HintPath>SettingsTools.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -132,12 +128,23 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddRecord.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddRecord.Designer.cs">
+      <DependentUpon>AddRecord.cs</DependentUpon>
+    </Compile>
     <Compile Include="Database.cs" />
+    <Compile Include="DataBaseAbstract.cs" />
     <Compile Include="DataOperationsTesting.cs" />
-    <Compile Include="DiagramForm.cs" />
+    <Compile Include="DiagramForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="DiagramForm.Designer.cs">
       <DependentUpon>DiagramForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExcelDatabase.cs" />
+    <Compile Include="IChangebleDatabase.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -145,7 +152,9 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DataOperations.cs" />
-    <Compile Include="Multilevels.cs" />
+    <Compile Include="Multilevels.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Multilevels.Designer.cs">
       <DependentUpon>Multilevels.cs</DependentUpon>
     </Compile>
@@ -175,6 +184,9 @@
     <Compile Include="RecentAndDirectives.Designer.cs">
       <DependentUpon>RecentAndDirectives.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AddRecord.resx">
+      <DependentUpon>AddRecord.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DiagramForm.resx">
       <DependentUpon>DiagramForm.cs</DependentUpon>
     </EmbeddedResource>

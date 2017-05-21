@@ -26,7 +26,7 @@ namespace Stazis
 				if (MessageBox.Show("Вы действительно хотите заменить элементы на пустое значение?", "Поле элемента замены пустое!", MessageBoxButtons.YesNo) == DialogResult.No)
 					return;
 	            progressBar1.Visible = true;
-				MessageBox.Show(string.Format("Операция успешно завершена\nВыполнено замен: {0}", DataOperations.ReplaceInDataTable(db, mainForm.tabControl1.SelectedIndex, Col, checkedListBox1.CheckedItems, comboBox1.Text, checkBox1.Checked)));
+				MessageBox.Show(string.Format("Операция успешно завершена\nВыполнено замен: {0}", DataOperations.ChangeRecords(db, mainForm.tabControl1.SelectedIndex, Col, checkedListBox1.CheckedItems, comboBox1.Text)));
 	            progressBar1.Visible = false;
 				for (int i = checkedListBox1.Items.Count - 1; i >= 0; i--)
 				{
