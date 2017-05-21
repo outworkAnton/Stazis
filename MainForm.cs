@@ -286,17 +286,13 @@ namespace Stazis
 			try 
 			{
 				if (датаToolStripMenuItem.Checked) {
-					DateTime FirstDate;
-					DateTime SecondDate;
-					DateTime.TryParse(e.CellValue1.ToString(), out FirstDate);
-					DateTime.TryParse(e.CellValue2.ToString(), out SecondDate);
+					DateTime.TryParse(e.CellValue1.ToString(), out DateTime FirstDate);
+					DateTime.TryParse(e.CellValue2.ToString(), out DateTime SecondDate);
 					e.SortResult = DateTime.Compare(FirstDate, SecondDate);
 				}
 				if (числоToolStripMenuItem.Checked) {
-					int FirstNumber;
-					int SecondNumber;
-					int.TryParse(e.CellValue1.ToString(), out FirstNumber);
-					int.TryParse(e.CellValue2.ToString(), out SecondNumber);
+					int.TryParse(e.CellValue1.ToString(), out int FirstNumber);
+					int.TryParse(e.CellValue2.ToString(), out int SecondNumber);
 					e.SortResult = String.Compare(FirstNumber.ToString("00000000000"), SecondNumber.ToString("00000000000"), StringComparison.Ordinal);
 				}
 				if (текстпоУмолчаниюToolStripMenuItem.Checked)
@@ -921,8 +917,7 @@ namespace Stazis
 		
 		void добавитьЗаписьВИсточникToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			AddRecord addRecForm = new AddRecord();
-			addRecForm.DB = DB;
+			AddRecord addRecForm = new AddRecord() { DB = DB };
 			addRecForm.ShowDialog();
 		}
 	}

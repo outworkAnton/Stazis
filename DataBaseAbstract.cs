@@ -6,7 +6,7 @@ namespace Stazis
 	public abstract class DataBaseAbstract
 	{
 		public enum DBmode { XLS, XLSX, CSV, SQLite};
-		public DBmode typeOfDB { get; set; }
+		public DBmode TypeOfDB { get; set; }
 		public List<string> NamesOfTables { get; set; }
 		public DataSet DatabaseSet { get; set; }
 		public readonly string DatabasePath;
@@ -25,7 +25,7 @@ namespace Stazis
 
 		public string GetNameOfType()
 		{
-			switch (typeOfDB)
+			switch (TypeOfDB)
 			{
 				case DBmode.XLS:
 					return "Книга Excel 97-2003";

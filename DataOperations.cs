@@ -75,7 +75,6 @@ namespace Stazis
 				case SearchIntMode.EqualTo:
 					var query =
 						from order in Source.AsEnumerable()
-						where order.Field<double>(Column) != null
 						where order.Field<double>(Column).Equals(SearchInt)
 						select order;
 					tmp = query.CopyToDataTable();
@@ -83,7 +82,6 @@ namespace Stazis
 				case SearchIntMode.LargerThen:
 					var queryStart =
 						from order in Source.AsEnumerable()
-						where order.Field<double>(Column) != null
 						where order.Field<double>(Column) > SearchInt
 						select order;
 					tmp = queryStart.CopyToDataTable();
@@ -91,7 +89,6 @@ namespace Stazis
 				case SearchIntMode.SmallerThen:
 					var queryCont =
 						from order in Source.AsEnumerable()
-						where order.Field<double>(Column) != null
 						where order.Field<double>(Column) < SearchInt
 						select order;
 					tmp = queryCont.CopyToDataTable();
@@ -166,8 +163,7 @@ namespace Stazis
 		
 		public static bool IsDate(object attemptedDate)
 		{
-			DateTime tmpDate;
-			return DateTime.TryParse(attemptedDate.ToString(), out tmpDate);
+			return DateTime.TryParse(attemptedDate.ToString(), out DateTime tmpDate);
 		}
 		
 		public static void ChangeColumnType(DataGridView dataGrid, DataTable dataTable, int columnIndex, Type type)

@@ -22,11 +22,11 @@ namespace Stazis
 				switch (Path.GetExtension(pathOfFile))
 				{
 					case ".xls":
-						typeOfDB = DBmode.XLS;
+						TypeOfDB = DBmode.XLS;
 						excelReader = ExcelReaderFactory.CreateBinaryReader(fs);
 						break;
 					case ".xlsx":
-						typeOfDB = DBmode.XLSX;
+						TypeOfDB = DBmode.XLSX;
 						excelReader = ExcelReaderFactory.CreateOpenXmlReader(fs);
 						break;
 				}
@@ -66,7 +66,7 @@ namespace Stazis
 			ISheet currentSheet = null;
 			using (FileStream fs = new FileStream(DatabasePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
 			{
-				switch (typeOfDB)
+				switch (TypeOfDB)
 				{
 					case DBmode.XLS:
 						WorkbookXLS = new HSSFWorkbook(fs);
@@ -85,7 +85,7 @@ namespace Stazis
 						Proceed++;
 					}
 				}
-				switch (typeOfDB)
+				switch (TypeOfDB)
 				{
 					case DBmode.XLS:
 						WorkbookXLS.Write(fs);
