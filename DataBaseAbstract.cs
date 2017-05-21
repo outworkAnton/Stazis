@@ -35,7 +35,7 @@ namespace Stazis
 					return "Файл CSV";
 				case DBmode.SQLite:
 					return "База данных SQLite";
-				default: return "Неизвестный";
+				default: return "Неопознанный";
 			}
 		}
 	}

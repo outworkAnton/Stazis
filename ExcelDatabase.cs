@@ -43,8 +43,8 @@ namespace Stazis
 
 		public override void Reload()
 		{
-			this.DatabaseSet = new DataSet();
-			this.NamesOfTables = new List<string>();
+			DatabaseSet = new DataSet();
+			NamesOfTables = new List<string>();
 			Load(DatabasePath);
 		}
 
