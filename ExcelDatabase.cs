@@ -36,8 +36,8 @@ namespace Stazis
 					NamesOfTables.Add(table.TableName);
 					DatabaseSet.Tables.Add(table.Copy());
 				}
-				SelectedTableIndex = 0;
 				excelReader.Close();
+				SelectedTableIndex = 0;
 			}
 		}
 

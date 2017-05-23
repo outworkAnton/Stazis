@@ -59,7 +59,7 @@ namespace Stazis
 						}
 						toolStripStatusLabel2.Text = string.Empty;
 						GetTablesList(db);
-						MaindataGrid.DataSource = db.DatabaseSet.Tables[0];
+						MaindataGrid.DataSource = db.CurrentDataTable;
 						typesColumnList = GetTypesOfDataTableColumns();
 						CheckViewOfGrid();
 						FormatDataGrid();
@@ -91,7 +91,7 @@ namespace Stazis
 		List<Type> GetTypesOfDataTableColumns()
 		{
 			List<Type> tmpList = new List<Type>();
-			foreach (DataColumn dc in db.DatabaseSet.Tables[tabControl1.SelectedIndex].Columns)
+			foreach (DataColumn dc in db.CurrentDataTable.Columns)
 				tmpList.Add(dc.DataType);
 			return tmpList;
 		}
@@ -246,19 +246,20 @@ namespace Stazis
 					toolStripProgressBar1.Visible = true;
 					int columnIndex = MaindataGrid.CurrentCell.ColumnIndex;;
 					string CellValue = MaindataGrid.CurrentCell.Value.ToString();
-					DataTable tmpDataTable = MaindataGrid.DataSource as DataTable;
-					DataTable newTable = tmpDataTable.Clone();
+					//DataTable tmpDataTable = MaindataGrid.DataSource as DataTable;
+					DataTable newTable = db.CurrentDataTable.Clone();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-					    newTable = DateTime.TryParse(CellValue, out tmpDate) ? DataOperations.QueryProcess(tmpDataTable, columnIndex, tmpDate, tmpDate) : DataOperations.QueryProcess(tmpDataTable, columnIndex, CellValue);							
+					    newTable = DateTime.TryParse(CellValue, out tmpDate) ? DataOperations.QueryProcess(db.CurrentDataTable, columnIndex, tmpDate, tmpDate) : DataOperations.QueryProcess(db.CurrentDataTable, columnIndex, CellValue);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
 						toolStripStatusLabel2.Text = "Производится обработка данных...";
 						Application.DoEvents();
 					}
-					MaindataGrid.DataSource = newTable;
-					if (saveSearchResult == SaveSearchResult.Yes) backUpSet[tabControl1.SelectedIndex] = MaindataGrid.DataSource as DataTable;
+					db.CurrentDataTable.Clear();
+					db.CurrentDataTable.Merge(newTable);
+					MaindataGrid.DataSource = db.CurrentDataTable;
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripProgressBar1.Visible = false;
@@ -314,10 +315,10 @@ namespace Stazis
 			{
 				Stopwatch perfWatch = new Stopwatch();
 				perfWatch.Start();
-				MaindataGrid.DataSource = saveSearchResult == SaveSearchResult.Yes ? backUpSet[SheetIndex].Rows.Count > 0 ? backUpSet[SheetIndex] : DB.listOfTables.Tables[SheetIndex] : DB.listOfTables.Tables[SheetIndex];
+				db.SelectedTableIndex = SheetIndex;
+				MaindataGrid.DataSource = db.CurrentDataTable;
 				FormatDataGrid();
 				TimeSpan span = perfWatch.Elapsed;
-				MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[tabControl1.SelectedIndex];;
 				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 				MaindataGrid.CurrentCell = null;
 			}

@@ -22,49 +22,31 @@ namespace Stazis
 		
 		public static DataTable QueryProcess(DataTable Source, int Column, DateTime Start, DateTime End)
 		{
-			DataTable tmp = Source.Clone();
-			var query =
-				from order in Source.AsEnumerable()
-				where order.Field<DateTime>(Column) != null
-				where order.Field<DateTime>(Column) >= Start
-				where order.Field<DateTime>(Column) <= End
-				orderby order.Field<DateTime>(Column) ascending
-				select order;
-			tmp = query.CopyToDataTable();
-			return tmp.Rows.Count != 0 ? tmp : Source;
+			return (from order in Source.AsEnumerable()
+					where order.Field<DateTime>(Column) >= Start
+					where order.Field<DateTime>(Column) <= End
+					orderby order.Field<DateTime>(Column) ascending
+					select order).CopyToDataTable();
 		}
 
 		public static DataTable QueryProcess(DataTable Source, int Column, string SearchText, SearchTextMode ModeOfSearch = SearchTextMode.Equals)
 		{
-			DataTable tmp = Source.Clone();
 			switch (ModeOfSearch)
 			{
 				case SearchTextMode.Equals:
-					var query =
-						from order in Source.AsEnumerable()
-						where order.Field<string>(Column) != null
-						where order.Field<string>(Column).ToUpper().Equals(SearchText.ToUpper())
-						select order;
-					tmp = query.CopyToDataTable<DataRow>();
-					break;
+					return (from order in (Source.AsEnumerable()).Select(x => { if (x[Column].GetType() != typeof(string)) x[Column] = x[Column].ToString(); return x; })
+							where order.Field<string>(Column).ToUpper().Equals(SearchText.ToUpper())
+							select order).CopyToDataTable();
 				case SearchTextMode.StartWith:
-					var queryStart =
-						from order in Source.AsEnumerable()
-						where order.Field<string>(Column) != null
-						where order.Field<string>(Column).StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)
-						select order;
-					tmp = queryStart.CopyToDataTable();
-					break;
+					return (from order in (Source.AsEnumerable()).Select(x => { if (x[Column].GetType() != typeof(string)) x[Column] = x[Column].ToString(); return x; })
+							where order.Field<string>(Column).StartsWith(SearchText, StringComparison.OrdinalIgnoreCase)
+							select order).CopyToDataTable();
 				case SearchTextMode.Contains:
-					var queryCont =
-						from order in Source.AsEnumerable()
-						where order.Field<string>(Column) != null
-						where order.Field<string>(Column).ToUpper().Contains(SearchText.ToUpper())
-						select order;
-					tmp = queryCont.CopyToDataTable();
-					break;
+					return (from order in (Source.AsEnumerable()).Select(x => { if (x[Column].GetType() != typeof(string)) x[Column] = x[Column].ToString(); return x; })
+							where order.Field<string>(Column).ToUpper().Contains(SearchText.ToUpper())
+							select order).CopyToDataTable();
 			}
-			return tmp;
+			return Source;
 		}
 
 		public static DataTable QueryProcess(DataTable Source, int Column, double SearchInt, SearchIntMode ModeOfSearch = SearchIntMode.EqualTo)

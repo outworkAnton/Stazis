@@ -6,11 +6,22 @@ namespace Stazis
 	public abstract class DataBaseAbstract
 	{
 		public enum DBmode { XLS, XLSX, CSV, SQLite};
-		public DBmode TypeOfDB { get; set; }
-		public List<string> NamesOfTables { get; set; }
+		public DBmode TypeOfDB { get; protected set; }
+		public List<string> NamesOfTables { get; protected set; }
 		public DataSet DatabaseSet { get; set; }
 		public readonly string DatabasePath;
-		public int SelectedTableIndex { get; set; }
+
+		int selectedTableIndex;
+		public int SelectedTableIndex
+		{
+			get { return selectedTableIndex; }
+			set
+			{
+				selectedTableIndex = value;
+				CurrentDataTable = DatabaseSet.Tables[selectedTableIndex];
+			}
+		}
+		public DataTable CurrentDataTable { get; set; }
 
 		public DataBaseAbstract(string pathOfFile)
 		{
