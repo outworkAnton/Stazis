@@ -41,13 +41,6 @@ namespace Stazis
 			}
 		}
 
-		public override void Reload()
-		{
-			DatabaseSet = new DataSet();
-			NamesOfTables = new List<string>();
-			Load(DatabasePath);
-		}
-
 		#region IChangebleDatabase support
 		public int ChangeRecords(int Column, IList<string> InputElements, string OutputElement)
 		{

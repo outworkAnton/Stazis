@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using Stazis.Properties;
 
 //TODO диаграммы
 //TODO многоуровневая сортировка
@@ -50,7 +51,21 @@ namespace Stazis
 						toolStripProgressBar1.Visible = true;
 						Task databaseLoad = Task.Factory.StartNew( () => 
 						{
-							db = new ExcelDatabase(recentForm.PathOfDB);
+							switch (Path.GetExtension(recentForm.PathOfDB))
+							{
+								case ".xls":
+								case ".xlsx":
+									db = new ExcelDatabase(recentForm.PathOfDB);
+									break;
+								case ".csv":
+									db = new CSVDatabase(recentForm.PathOfDB);
+									break;
+								case ".db":
+								case ".cdb":
+								case ".sqlite3":
+									db = new SQLiteDatabase(recentForm.PathOfDB);
+									break;
+							}
 						});
 						while (!databaseLoad.IsCompleted)
 						{
@@ -60,7 +75,7 @@ namespace Stazis
 						toolStripStatusLabel2.Text = string.Empty;
 						GetTablesList(db);
 						MaindataGrid.DataSource = db.CurrentDataTable;
-						typesColumnList = GetTypesOfDataTableColumns();
+						//typesColumnList = GetTypesOfDataTableColumns();
 						CheckViewOfGrid();
 						FormatDataGrid();
 						uniquesForm = new Uniques();
@@ -108,33 +123,11 @@ namespace Stazis
 
 		void CheckViewOfGrid()
 		{
-			string[,] tmpValArray = SettingsTools.Operations.GetValuesOfKey("Software\\Convex\\Stazis\\ViewOfGrid", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
-			if (tmpValArray == null) return;
-			for (int i = 0; i < tmpValArray.GetLength(1); i++)
-			{
-				автоподборВысотыСтрокToolStripMenuItem.Checked |= (tmpValArray[0, i] == "AutoResizeRowHeight") && (tmpValArray[1, i] == "Yes");
-				автоподборВысотыЗаголовковToolStripMenuItem.Checked |= (tmpValArray[0, i] == "AutoResizeColumnHeaderHeight") && (tmpValArray[1, i] == "Yes");
-				автоподборШириныЗаголовковToolStripMenuItem.Checked |= (tmpValArray[0, i] == "AutoResizeColumnHeaderWidth") && (tmpValArray[1, i] == "Yes");
-				автоподборШириныСтолбцовToolStripMenuItem.Checked |= (tmpValArray[0, i] == "AutoResizeColumnWidth") && (tmpValArray[1, i] == "Yes");
-				сохранятьРезультатыПоискаПриПереключенииВкладокToolStripMenuItem.Checked |= (tmpValArray[0, i] == "SaveSearchResult") && (tmpValArray[1, i] == "Yes");
-			}
-			if (сохранятьРезультатыПоискаПриПереключенииВкладокToolStripMenuItem.Checked) 
-				{
-					saveSearchResult = SaveSearchResult.Yes;
-					backUpSet = new List<DataTable>(tabControl1.TabPages.Count);
-				    for (int i = 0; i < tabControl1.TabPages.Count; i++) 
-				    {
-				    	try 
-				    	{
-							if (backUpSet[i].Rows.Count != 0)
-								backUpSet[i] = MaindataGrid.DataSource as DataTable;
-				    	} 
-				    	catch (Exception) 
-				    	{
-				    		backUpSet.Insert(i, new DataTable());
-				    	}
-				    }
-				}
+				автоподборВысотыСтрокToolStripMenuItem.Checked = AppSettings.Default.AutoResizeRowHeight;
+				автоподборВысотыЗаголовковToolStripMenuItem.Checked = AppSettings.Default.AutoResizeColumnHeaderHeight;
+				автоподборШириныЗаголовковToolStripMenuItem.Checked = AppSettings.Default.AutoResizeColumnHeaderWidth;
+				автоподборШириныСтолбцовToolStripMenuItem.Checked = AppSettings.Default.AutoResizeColumnWidth;
+				сохранятьРезультатыПоискаПриПереключенииВкладокToolStripMenuItem.Checked = AppSettings.Default.SaveSearchResult;
 		}
 
 		void FormatDataGrid()
@@ -147,28 +140,7 @@ namespace Stazis
 
 		void Reload()
 		{
-			Stopwatch perfWatch = new Stopwatch();
-			perfWatch.Start();
-			toolStripProgressBar1.Visible = true;
-			string path = DB.pathOfDatabase;
-			DB = null;
-			Task taskInThread = Task.Factory.StartNew( () => 
-			{
-				DB = new Database(recentForm.PathOfDB);							
-			});
-			while (!taskInThread.IsCompleted)
-			{
-				toolStripStatusLabel2.Text = "Производится загрузка данных...";
-				Application.DoEvents();
-			}
-			toolStripStatusLabel2.Text = string.Empty;
-			GetTablesList(db);
-			MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[0];
-			CheckViewOfGrid();
-			FormatDataGrid();
-			toolStripProgressBar1.Visible = false;
-			TimeSpan span = perfWatch.Elapsed;
-			toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+			
 		}
 
 		void UnformatDataGrid()
@@ -221,10 +193,10 @@ namespace Stazis
 							break;
 					}
 					MaindataGrid.Columns[e.ColumnIndex].Selected = true;
-					if (MaindataGrid.RowCount != DB.listOfTables.Tables[tabControl1.SelectedIndex].Rows.Count)
-						пакетныйЗаменительToolStripMenuItem.Enabled = false;
-					else 
+					if (db is IChangebleDatabase)
 						пакетныйЗаменительToolStripMenuItem.Enabled = true;
+					else 
+						пакетныйЗаменительToolStripMenuItem.Enabled = false;
 				}
 			} 
 			catch (Exception exc) 
@@ -246,20 +218,23 @@ namespace Stazis
 					toolStripProgressBar1.Visible = true;
 					int columnIndex = MaindataGrid.CurrentCell.ColumnIndex;;
 					string CellValue = MaindataGrid.CurrentCell.Value.ToString();
-					//DataTable tmpDataTable = MaindataGrid.DataSource as DataTable;
 					DataTable newTable = db.CurrentDataTable.Clone();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-					    newTable = DateTime.TryParse(CellValue, out tmpDate) ? DataOperations.QueryProcess(db.CurrentDataTable, columnIndex, tmpDate, tmpDate) : DataOperations.QueryProcess(db.CurrentDataTable, columnIndex, CellValue);							
+					    newTable = DateTime.TryParse(CellValue, out tmpDate) ? DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, columnIndex, tmpDate, tmpDate) : DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, columnIndex, CellValue);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
 						toolStripStatusLabel2.Text = "Производится обработка данных...";
 						Application.DoEvents();
 					}
-					db.CurrentDataTable.Clear();
-					db.CurrentDataTable.Merge(newTable);
-					MaindataGrid.DataSource = db.CurrentDataTable;
+					if (AppSettings.Default.SaveSearchResult)
+					{
+						db.CurrentDataTable.Clear();
+						db.CurrentDataTable.Merge(newTable);
+						MaindataGrid.DataSource = db.CurrentDataTable;
+					}
+					else MaindataGrid.DataSource = newTable;
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripProgressBar1.Visible = false;
@@ -333,13 +308,26 @@ namespace Stazis
 		{
 			try 
 			{
-				Reload();
-//				for (int i = 0, maxColumnsCount = DB.listOfTables.Tables[tabControl1.SelectedIndex].Columns.Count; i < maxColumnsCount; i++)
-//				{
-//					DataColumn col = DB.listOfTables.Tables[tabControl1.SelectedIndex].Columns[i];
-//					if (col.DataType != typeof(string))
-//						ChangeColumnType(MaindataGrid, DB.listOfTables.Tables[tabControl1.SelectedIndex], col.Ordinal, typeof(string));
-//				}
+				Stopwatch perfWatch = new Stopwatch();
+				perfWatch.Start();
+				toolStripProgressBar1.Visible = true;
+				Task taskInThread = Task.Factory.StartNew(() =>
+				{
+					db.Reload();
+				});
+				while (!taskInThread.IsCompleted)
+				{
+					toolStripStatusLabel2.Text = "Производится загрузка данных...";
+					Application.DoEvents();
+				}
+				toolStripStatusLabel2.Text = string.Empty;
+				GetTablesList(db);
+				MaindataGrid.DataSource = db.CurrentDataTable;
+				CheckViewOfGrid();
+				FormatDataGrid();
+				toolStripProgressBar1.Visible = false;
+				TimeSpan span = perfWatch.Elapsed;
+				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 			} 
 			catch (Exception exc) 
 			{
@@ -358,8 +346,7 @@ namespace Stazis
 				текстпоУмолчаниюToolStripMenuItem.Checked = false;
 				Stopwatch perfWatch = new Stopwatch();
 				perfWatch.Start();
-				DataTable tmpDataTable = (DataTable)MaindataGrid.DataSource;
-				DataOperations.ChangeColumnType(MaindataGrid,tmpDataTable, MaindataGrid.CurrentCell.ColumnIndex, typeof(DateTime));
+				DataOperations.ChangeColumnType(MaindataGrid,db.CurrentDataTable, MaindataGrid.CurrentCell.ColumnIndex, typeof(DateTime));
 				TimeSpan span = perfWatch.Elapsed;
 				toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
 				contextMenuStrip1.Hide();
@@ -382,7 +369,7 @@ namespace Stazis
 				string columnName = filtersForm.ColName = MaindataGrid.Columns[MaindataGrid.CurrentCell.ColumnIndex].HeaderText;
 				filtersForm.AppDir = AppDir;
 				List<double> list = new List<double>();
-				var query = from order in DB.listOfTables.Tables[tabControl1.SelectedIndex].AsEnumerable()
+				var query = from order in db.CurrentDataTable.AsEnumerable()
 					select order.Field<double>(columnName);
 				list.AddRange(query);
 				filtersForm.minDoubleRange = list.Min();
@@ -395,19 +382,23 @@ namespace Stazis
 					double SearchInteger = filtersForm.intValue;
 					DataOperations.SearchIntMode Mode = filtersForm.intMode;
 					int ColumnIndex = MaindataGrid.CurrentCell.ColumnIndex;
-					DataTable tmpDataTable = (DataTable)MaindataGrid.DataSource;
-					DataTable newTable = new DataTable();
+					DataTable newTable = db.CurrentDataTable.Clone();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-						newTable = DataOperations.QueryProcess(tmpDataTable, ColumnIndex, SearchInteger, Mode);							
+						newTable = DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, ColumnIndex, SearchInteger, Mode);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
 						toolStripStatusLabel2.Text = "Производится обработка данных...";
 						Application.DoEvents();
 					}
-					MaindataGrid.DataSource = newTable;
-					if (saveSearchResult == SaveSearchResult.Yes) backUpSet[tabControl1.SelectedIndex] = MaindataGrid.DataSource as DataTable;
+					if (AppSettings.Default.SaveSearchResult)
+					{
+						db.CurrentDataTable.Clear();
+						db.CurrentDataTable.Merge(newTable);
+						MaindataGrid.DataSource = db.CurrentDataTable;
+					}
+					else MaindataGrid.DataSource = newTable;
 					FormatDataGrid();
 					string SearchOption = string.Empty;
 					switch (Mode)
@@ -415,11 +406,9 @@ namespace Stazis
 						case DataOperations.SearchIntMode.EqualTo:
 							SearchOption = "равных";
 							break;
-	
 						case DataOperations.SearchIntMode.LargerThen:
 							SearchOption = "больших";
 							break;
-	
 						case DataOperations.SearchIntMode.SmallerThen:
 							SearchOption = "меньших";
 							break;
@@ -446,7 +435,7 @@ namespace Stazis
 				filtersForm.ColName = MaindataGrid.Columns[MaindataGrid.CurrentCell.ColumnIndex].Name;
 				filtersForm.AppDir = AppDir;
 				List<DateTime> list = new List<DateTime>();
-				var query = from order in DB.listOfTables.Tables[tabControl1.SelectedIndex].AsEnumerable()
+				var query = from order in db.CurrentDataTable.AsEnumerable()
 					select order.Field<DateTime>(filtersForm.ColName);
 				list.AddRange(query);
 				filtersForm.minDateRange = list.Min();
@@ -459,19 +448,23 @@ namespace Stazis
 					DateTime Start = filtersForm.StartDate;
 					DateTime End = filtersForm.EndDate;
 					int ColumnIndex = MaindataGrid.CurrentCell.ColumnIndex;
-					DataTable tmpDataTable = (DataTable)MaindataGrid.DataSource;
-					DataTable newTable = new DataTable();
+					DataTable newTable = db.CurrentDataTable.Clone();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-						newTable = DataOperations.QueryProcess(tmpDataTable, ColumnIndex, Start, End);							
+						newTable = DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, ColumnIndex, Start, End);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
 						toolStripStatusLabel2.Text = "Производится обработка данных...";
 						Application.DoEvents();
 					}
-					MaindataGrid.DataSource = newTable;
-					if (saveSearchResult == SaveSearchResult.Yes) backUpSet[tabControl1.SelectedIndex] = MaindataGrid.DataSource as DataTable;
+					if (AppSettings.Default.SaveSearchResult)
+					{
+						db.CurrentDataTable.Clear();
+						db.CurrentDataTable.Merge(newTable);
+						MaindataGrid.DataSource = db.CurrentDataTable;
+					}
+					else MaindataGrid.DataSource = newTable;
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
@@ -723,16 +716,16 @@ namespace Stazis
 		{
 			try 
 			{
-				Stopwatch perfWatch = new Stopwatch();
-				perfWatch.Start();
 				if (автоподборВысотыСтрокToolStripMenuItem.Checked)
 				{
+					Stopwatch perfWatch = new Stopwatch();
+					perfWatch.Start();
 					MaindataGrid.AutoResizeRows(DataGridViewAutoSizeRowsMode.DisplayedCells);
-					SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "AutoResizeRowHeight", "Yes", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
+					AppSettings.Default.AutoResizeRowHeight = true;
+					TimeSpan span = perfWatch.Elapsed;
+					toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек", span.Minutes, span.Seconds, span.Milliseconds);
 				}
-				else SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "AutoResizeRowHeight", "No", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
-				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
+				else AppSettings.Default.AutoResizeRowHeight = false;
 			} 
 			catch (Exception exc) 
 			{
@@ -745,16 +738,16 @@ namespace Stazis
 		{
 			try 
 			{
-				Stopwatch perfWatch = new Stopwatch();
-				perfWatch.Start();
 				if (автоподборШириныСтолбцовToolStripMenuItem.Checked)
-				{ 
+				{
+					Stopwatch perfWatch = new Stopwatch();
+					perfWatch.Start();
 					MaindataGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.DisplayedCells);
-					SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "AutoResizeColumnWidth", "Yes", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
+					AppSettings.Default.AutoResizeColumnWidth = true;
+					TimeSpan span = perfWatch.Elapsed;
+					toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек", span.Minutes, span.Seconds, span.Milliseconds);
 				}
-				else SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "AutoResizeColumnWidth", "No", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
-				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
+				else AppSettings.Default.AutoResizeColumnWidth = false;
 			} 
 			catch (Exception exc) 
 			{
@@ -767,16 +760,16 @@ namespace Stazis
 		{
 			try 
 			{
-				Stopwatch perfWatch = new Stopwatch();
-				perfWatch.Start();
 				if (автоподборВысотыЗаголовковToolStripMenuItem.Checked)
-				{ 
+				{
+					Stopwatch perfWatch = new Stopwatch();
+					perfWatch.Start();
 					MaindataGrid.AutoResizeColumnHeadersHeight();
-					SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "AutoResizeColumnHeaderHeight", "Yes", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
+					AppSettings.Default.AutoResizeColumnHeaderHeight = true;
+					TimeSpan span = perfWatch.Elapsed;
+					toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек", span.Minutes, span.Seconds, span.Milliseconds);
 				}
-				else SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "AutoResizeColumnHeaderHeight", "No", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
-				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
+				else AppSettings.Default.AutoResizeColumnHeaderHeight = false;
 			} 
 			catch (Exception exc) 
 			{
@@ -789,16 +782,16 @@ namespace Stazis
 		{
 			try 
 			{
-				Stopwatch perfWatch = new Stopwatch();
-				perfWatch.Start();
 				if (автоподборШириныЗаголовковToolStripMenuItem.Checked)
-				{ 
+				{
+					Stopwatch perfWatch = new Stopwatch();
+					perfWatch.Start();
 					MaindataGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
-					SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "AutoResizeColumnHeaderWidth", "Yes", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
+					AppSettings.Default.AutoResizeColumnHeaderWidth = true;
+					TimeSpan span = perfWatch.Elapsed;
+					toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек", span.Minutes, span.Seconds, span.Milliseconds);
 				}
-				else SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "AutoResizeColumnHeaderWidth", "No", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
-				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
+				else AppSettings.Default.AutoResizeColumnHeaderWidth = false;
 			} 
 			catch (Exception exc) 
 			{
@@ -853,33 +846,13 @@ namespace Stazis
 			{
 				if (!сохранятьРезультатыПоискаПриПереключенииВкладокToolStripMenuItem.Checked)
 				{
-					saveSearchResult = SaveSearchResult.Yes;
 					сохранятьРезультатыПоискаПриПереключенииВкладокToolStripMenuItem.Checked = true;
-					backUpSet = new List<DataTable>(tabControl1.TabPages.Count);
-					for (int i = 0; i < tabControl1.TabPages.Count; i++)
-					{
-						try
-						{
-							if (backUpSet[i].Rows.Count != 0)
-								backUpSet[i] = MaindataGrid.DataSource as DataTable;
-						}
-						catch
-						{
-							if (i == tabControl1.SelectedIndex)
-								backUpSet.Insert(i, MaindataGrid.DataSource as DataTable);
-							else
-								backUpSet.Insert(i, new DataTable());
-						}
-					}
-					SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "SaveSearchResult", "Yes", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
+					AppSettings.Default.SaveSearchResult = true;
 				}
 				else
 				{
-					saveSearchResult = SaveSearchResult.No;
-					backUpSet = new List<DataTable>(tabControl1.TabPages.Count);
-					//MaindataGrid.DataSource = DB.listOfTables.Tables[tabControl1.SelectedIndex];
+					AppSettings.Default.SaveSearchResult = false;
 					сохранятьРезультатыПоискаПриПереключенииВкладокToolStripMenuItem.Checked = false;
-					SettingsTools.Operations.SaveToRegistry("Software\\Convex\\Stazis\\ViewOfGrid", "SaveSearchResult", "No", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
 				}
 			} 
 			catch (Exception exc) 
@@ -898,10 +871,12 @@ namespace Stazis
 		{
 			Cursor.Current = Cursors.Hand;
 		}
+
 		void многоуровневыйАнализToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 	
 		}
+
 		void скрытьСтолбецToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Stopwatch perfWatch = new Stopwatch();
@@ -920,6 +895,11 @@ namespace Stazis
 		{
 			AddRecord addRecForm = new AddRecord() { DB = DB };
 			addRecForm.ShowDialog();
+		}
+
+		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			AppSettings.Default.Save();
 		}
 	}
 }

@@ -32,7 +32,13 @@ namespace Stazis
 		}
 
 		public abstract void Load(string pathOfFile);
-		public abstract void Reload();
+
+		public virtual void Reload()
+		{
+			DatabaseSet = new DataSet();
+			NamesOfTables = new List<string>();
+			Load(DatabasePath);
+		}
 
 		public string GetNameOfType()
 		{

@@ -51,32 +51,22 @@ namespace Stazis
 
 		public static DataTable QueryProcess(DataTable Source, int Column, double SearchInt, SearchIntMode ModeOfSearch = SearchIntMode.EqualTo)
 		{
-			DataTable tmp = Source.Clone();
 			switch (ModeOfSearch)
 			{
 				case SearchIntMode.EqualTo:
-					var query =
-						from order in Source.AsEnumerable()
-						where order.Field<double>(Column).Equals(SearchInt)
-						select order;
-					tmp = query.CopyToDataTable();
-					break;
+					return (from order in Source.AsEnumerable()
+							where order.Field<double>(Column).Equals(SearchInt)
+							select order).CopyToDataTable();
 				case SearchIntMode.LargerThen:
-					var queryStart =
-						from order in Source.AsEnumerable()
-						where order.Field<double>(Column) > SearchInt
-						select order;
-					tmp = queryStart.CopyToDataTable();
-					break;
+					return (from order in Source.AsEnumerable()
+							where order.Field<double>(Column) > SearchInt
+							select order).CopyToDataTable();
 				case SearchIntMode.SmallerThen:
-					var queryCont =
-						from order in Source.AsEnumerable()
-						where order.Field<double>(Column) < SearchInt
-						select order;
-					tmp = queryCont.CopyToDataTable();
-					break;
+					return (from order in Source.AsEnumerable()
+							where order.Field<double>(Column) < SearchInt
+							select order).CopyToDataTable();
 			}
-			return tmp.Rows.Count != 0 ? tmp : Source;
+			return  Source;
 		}
 		
 		public static void ExportToCSV(DataTable dataTable, string pathOfCSVFile)

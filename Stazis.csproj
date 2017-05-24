@@ -135,6 +135,7 @@
     <Compile Include="AddRecord.Designer.cs">
       <DependentUpon>AddRecord.cs</DependentUpon>
     </Compile>
+    <Compile Include="CSVDatabase.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DataBaseAbstract.cs" />
     <Compile Include="DataOperationsTesting.cs" />
@@ -165,6 +166,7 @@
     <Compile Include="Replacer.Designer.cs">
       <DependentUpon>Replacer.cs</DependentUpon>
     </Compile>
+    <Compile Include="SQLiteDatabase.cs" />
     <Compile Include="Uniques.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -221,13 +223,13 @@
     </Compile>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
+    <None Include="Properties\AppSettings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <LastGenOutput>AppSettings.Designer.cs</LastGenOutput>
     </None>
-    <Compile Include="Properties\Settings.Designer.cs">
+    <Compile Include="Properties\AppSettings.Designer.cs">
       <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
+      <DependentUpon>AppSettings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
