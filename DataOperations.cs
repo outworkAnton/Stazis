@@ -230,10 +230,10 @@ namespace Stazis
 		
 		public static void LoadUniques(DataTable Source, int Column, DataGridView Grid)
 		{
-			List<string> list = new List<string>();
-			var query = from order in Source.AsEnumerable().AsParallel()
-						select order.Field<string>(Column);
-			list.AddRange(query.AsEnumerable());
+			//List<string> list = new List<string>();
+			//var query = from order in Source.AsEnumerable()
+			//			select order.Field<string>(Column);
+			//list.AddRange(query.AsEnumerable());
 			int Summary = 0;
 			Grid.DataSource = null;
 			Grid.Columns.Clear();
@@ -241,7 +241,7 @@ namespace Stazis
 			Grid.Columns.Add("Value", "Значение");
 			Grid.Columns.Add("Count", "Количество");
 			foreach (DataGridViewColumn col in Grid.Columns) col.SortMode = DataGridViewColumnSortMode.Programmatic;
-			list.AsParallel()
+			Source.AsEnumerable().Select(x => x[Column].ToString())
 				.GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
 				.OrderByDescending(x => x.LongCount())
 				.ToList()
@@ -291,24 +291,23 @@ namespace Stazis
 			}
 		}
 		
-		public static int ChangeRecords(Database dataBase, int sheetIndex, int Column, CheckedListBox.CheckedItemCollection InElements, string OutElement)
+		public static int ChangeRecords(DataBaseAbstract dataBase, int Column, IList<string> InElements, string OutElement)
         {
             int Proceed = 0;
-            List<string> elementList = InElements.Cast<string>().ToList<string>();
             if (OutElement == "<пустое значение>")
                 OutElement = String.Empty;
-            if (elementList.Contains("<пустое значение>"))
-                elementList[elementList.IndexOf("<пустое значение>")] = String.Empty;
-            for (int row = 0; row < dataBase.listOfTables.Tables[sheetIndex].Rows.Count; row++)
+            if (InElements.Contains("<пустое значение>"))
+				InElements[InElements.IndexOf("<пустое значение>")] = String.Empty;
+            for (int row = 0; row < dataBase.CurrentDataTable.Rows.Count; row++)
             {
-                if (elementList.Contains(dataBase.listOfTables.Tables[sheetIndex].Rows[row][Column].ToString()))
+                if (InElements.Contains(dataBase.CurrentDataTable.Rows[row][Column].ToString()))
                 {
-                    dataBase.listOfTables.Tables[sheetIndex].Rows[row][Column] = OutElement;
+					dataBase.CurrentDataTable.Rows[row][Column] = OutElement;
                     Proceed++;
                 }
                 Application.DoEvents();
             }
-            dataBase.listOfTables.AcceptChanges();
+			dataBase.CurrentDataTable.AcceptChanges();
             return Proceed;
         }
 		

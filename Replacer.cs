@@ -7,18 +7,17 @@ namespace Stazis
 {
     public partial class Replacer : Form
     {
-        MainForm mainForm = new MainForm();
+        MainForm mainForm;
         public int Col { get; set; }
         public string ColName {get;set;}
-		public Database db { get; set; }
-		public string AppDir { get; set; }
 		
-        public Replacer()
+        public Replacer(MainForm form)
         {
             InitializeComponent();
+			mainForm = form;
         }
 
-        void button1_Click(object sender, EventArgs e)
+        void changeButton_Click(object sender, EventArgs e)
         {
             try 
             {
@@ -26,7 +25,9 @@ namespace Stazis
 				if (MessageBox.Show("Вы действительно хотите заменить элементы на пустое значение?", "Поле элемента замены пустое!", MessageBoxButtons.YesNo) == DialogResult.No)
 					return;
 	            progressBar1.Visible = true;
-				MessageBox.Show(string.Format("Операция успешно завершена\nВыполнено замен: {0}", DataOperations.ChangeRecords(db, mainForm.tabControl1.SelectedIndex, Col, checkedListBox1.CheckedItems, comboBox1.Text)));
+				int changesCount = DataOperations.ChangeRecords(mainForm.db, Col, checkedListBox1.CheckedItems.OfType<string>().ToList(), comboBox1.Text);
+				if (checkBox1.Checked) (mainForm.db as IChangebleDatabase).ChangeRecords(Col, checkedListBox1.CheckedItems.OfType<string>().ToList(), comboBox1.Text);
+				MessageBox.Show(string.Format("Операция успешно завершена\nВыполнено замен: {0}", changesCount));
 	            progressBar1.Visible = false;
 				for (int i = checkedListBox1.Items.Count - 1; i >= 0; i--)
 				{
@@ -39,24 +40,24 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(AppDir, exc);
+            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
             }
         }
 
-        void button2_Click(object sender, EventArgs e)
+        void correctButton_Click(object sender, EventArgs e)
         {
             try 
             {
             	if (checkedListBox2.CheckedItems.Count == 0) return;
 	            progressBar1.Visible = true;
-	            MessageBox.Show(string.Format("Операция успешно завершена\nВыполнено корректировок: {0}", DataOperations.CorrectColumnRecords(db, mainForm.tabControl1.SelectedIndex, Col, checkedListBox2.CheckedItems, checkBox1.Checked)));
+	            //MessageBox.Show(string.Format("Операция успешно завершена\nВыполнено корректировок: {0}", DataOperations.CorrectColumnRecords(db, mainForm.tabControl1.SelectedIndex, Col, checkedListBox2.CheckedItems, checkBox1.Checked)));
 	            progressBar1.Visible = false;
 	            button5_Click(this, e);
             } 
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(AppDir, exc);
+            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
             }
         }
 
@@ -77,18 +78,14 @@ namespace Stazis
             switch (Mode)
             {
                 case searchMode.Contains:
-                    var listOfContains =
-                    	from order in backUp.AsParallel()
-                                    where order.ToUpper().Contains(searchText.ToUpper())
-                                    select order;
-                    tmp = listOfContains.ToList();
+					tmp = (from order in backUp
+						   where order.ToUpper().Contains(searchText.ToUpper())
+						   select order).ToList();
                     break;
                 case searchMode.StartWith:
-                    var listOfStart =
-                    	from order in backUp.AsParallel()
-                                    where order.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)
-                                    select order;
-                    tmp = listOfStart.ToList();
+					tmp = (from order in backUp
+						   where order.StartsWith(searchText, StringComparison.OrdinalIgnoreCase)
+						   select order).ToList();
                     break;
             }
             checkedListBox1.Items.Clear();
@@ -102,12 +99,12 @@ namespace Stazis
 				Text = "Автоматизированный корректор элементов столбца - '" + ColName + "'";
 	            checkBox1.Checked = false;
 	            comboBox2.SelectedIndex = 0;
-	            backUp = checkedListBox1.Items.Cast<string>().ToList<string>();
+	            backUp = checkedListBox1.Items.Cast<string>().ToList();
 			} 
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(mainForm.AppDir, exc);
 			}
         }
 
@@ -122,7 +119,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(AppDir, exc);
+            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
             }
         }
 
@@ -137,7 +134,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(AppDir, exc);
+            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
             }
         }
 
@@ -147,12 +144,12 @@ namespace Stazis
             {
             	for (int i = 0; i < checkedListBox2.Items.Count; i++)
 	                checkedListBox2.SetItemChecked(i, true);
-	            button2.Enabled = true;
+	            correctButton.Enabled = true;
             } 
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(AppDir, exc);
+            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
             }
         }
 
@@ -162,12 +159,12 @@ namespace Stazis
             {
             	for (int i = 0; i < checkedListBox2.Items.Count; i++)
 	                checkedListBox2.SetItemChecked(i, false);
-	            button2.Enabled = false;
+	            correctButton.Enabled = false;
             } 
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(AppDir, exc);
+            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
             }
         }
 
@@ -201,18 +198,18 @@ namespace Stazis
             catch (Exception exc)
             {
 				MessageBox.Show(exc.Message);
-                LogManager.Log.AddToLog(AppDir, exc);
+                LogManager.Log.AddToLog(mainForm.AppDir, exc);
             }
         }
 
         void comboBox1_EnabledChanged(object sender, EventArgs e)
         {
-			button1.Enabled = comboBox1.Enabled;
+			changeButton.Enabled = comboBox1.Enabled;
         }
 
         void checkedListBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-			button2.Enabled = checkedListBox2.CheckedItems.Count > 0;
+			correctButton.Enabled = checkedListBox2.CheckedItems.Count > 0;
         }
 
         void textBox1_TextChanged(object sender, EventArgs e)
@@ -224,7 +221,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(AppDir, exc);
+            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
             }
         }
     }

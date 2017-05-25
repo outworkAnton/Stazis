@@ -80,7 +80,7 @@ namespace Stazis
 						FormatDataGrid();
 						uniquesForm = new Uniques();
 						filtersForm = new ValueFilters();
-						replacerForm = new Replacer();
+						replacerForm = new Replacer(this);
 						toolStripProgressBar1.Visible = false;
 						TimeSpan span = perfWatch.Elapsed;
 						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(db.DatabasePath), db.GetNameOfType());
@@ -481,17 +481,23 @@ namespace Stazis
 
 		void пакетныйЗаменительToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			List<string> list = new List<string>();
+			//List<string> list = new List<string>();
+			int colIndex = MaindataGrid.CurrentCell.ColumnIndex;
 			try
 			{
-				for (int i = 0; i < DB.listOfTables.Tables[tabControl1.SelectedIndex].Rows.Count; i++)
+				var lst = (db.CurrentDataTable.AsEnumerable().Select(x =>
 				{
-					string item = DB.listOfTables.Tables[tabControl1.SelectedIndex].Rows[i][MaindataGrid.CurrentCell.ColumnIndex].ToString();
-					if (!string.IsNullOrWhiteSpace(item)) list.Add(item);
-					else list.Add("<пустое значение>");
-				}
+					if (!string.IsNullOrWhiteSpace(x[colIndex].ToString())) return x[colIndex].ToString();
+					else return "<пустое значение>";
+				})).Distinct().OrderBy(x => x).ToArray();
+				//for (int i = 0; i < db.CurrentDataTable.Rows.Count; i++)
+				//{
+				//	string item = db.CurrentDataTable.Rows[i][MaindataGrid.CurrentCell.ColumnIndex].ToString();
+				//	if (!string.IsNullOrWhiteSpace(item)) list.Add(item);
+				//	else list.Add("<пустое значение>");
+				//}
 				replacerForm.checkedListBox1.Items.Clear();
-				replacerForm.checkedListBox1.Items.AddRange(list.AsParallel().Distinct().OrderBy(x => x).ToArray());
+				replacerForm.checkedListBox1.Items.AddRange(lst);
 			}
 			catch (Exception exc)
 			{
@@ -499,13 +505,9 @@ namespace Stazis
 				LogManager.Log.AddToLog(AppDir, exc);
 				return;
 			}
-			replacerForm.Col = MaindataGrid.CurrentCell.ColumnIndex;
-			replacerForm.ColName = MaindataGrid.Columns[MaindataGrid.CurrentCell.ColumnIndex].Name;
-			if (DB.TypeOfDB != Database.DBmode.SQLite && DB.TypeOfDB != Database.DBmode.CSV)
-				replacerForm.checkBox1.Enabled = true;
-			else replacerForm.checkBox1.Enabled = false;
-			replacerForm.db = DB;
-			replacerForm.AppDir = AppDir;
+			replacerForm.Col = colIndex;
+			replacerForm.ColName = MaindataGrid.Columns[colIndex].Name;
+			replacerForm.checkBox1.Enabled = (db is IChangebleDatabase);
 			replacerForm.ShowDialog();
 		}
 
