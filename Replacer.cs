@@ -27,8 +27,8 @@ namespace Stazis
 	            progressBar1.Visible = true;
 				int changesCount = DataOperations.ChangeRecords(mainForm.db, Col, checkedListBox1.CheckedItems.OfType<string>().ToList(), comboBox1.Text);
 				if (checkBox1.Checked) (mainForm.db as IChangebleDatabase).ChangeRecords(Col, checkedListBox1.CheckedItems.OfType<string>().ToList(), comboBox1.Text);
+				progressBar1.Visible = false;
 				MessageBox.Show(string.Format("Операция успешно завершена\nВыполнено замен: {0}", changesCount));
-	            progressBar1.Visible = false;
 				for (int i = checkedListBox1.Items.Count - 1; i >= 0; i--)
 				{
 					foreach (string item in checkedListBox1.CheckedItems)

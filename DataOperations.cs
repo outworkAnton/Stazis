@@ -230,10 +230,6 @@ namespace Stazis
 		
 		public static void LoadUniques(DataTable Source, int Column, DataGridView Grid)
 		{
-			//List<string> list = new List<string>();
-			//var query = from order in Source.AsEnumerable()
-			//			select order.Field<string>(Column);
-			//list.AddRange(query.AsEnumerable());
 			int Summary = 0;
 			Grid.DataSource = null;
 			Grid.Columns.Clear();
@@ -241,10 +237,7 @@ namespace Stazis
 			Grid.Columns.Add("Value", "Значение");
 			Grid.Columns.Add("Count", "Количество");
 			foreach (DataGridViewColumn col in Grid.Columns) col.SortMode = DataGridViewColumnSortMode.Programmatic;
-			Source.AsEnumerable().Select(x => x[Column].ToString())
-				.GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
-				.OrderByDescending(x => x.LongCount())
-				.ToList()
+			Source.AsEnumerable().Select(x => x[Column].ToString()).GroupBy(x => x, StringComparer.OrdinalIgnoreCase).OrderByDescending(x => x.LongCount()).ToList()
 				.ForEach(x =>
 					{
 						Grid.Rows.Add();
@@ -298,16 +291,15 @@ namespace Stazis
                 OutElement = String.Empty;
             if (InElements.Contains("<пустое значение>"))
 				InElements[InElements.IndexOf("<пустое значение>")] = String.Empty;
-            for (int row = 0; row < dataBase.CurrentDataTable.Rows.Count; row++)
-            {
-                if (InElements.Contains(dataBase.CurrentDataTable.Rows[row][Column].ToString()))
-                {
-					dataBase.CurrentDataTable.Rows[row][Column] = OutElement;
-                    Proceed++;
-                }
-                Application.DoEvents();
-            }
-			dataBase.CurrentDataTable.AcceptChanges();
+			dataBase.CurrentDataTable.AsEnumerable().Select(x => 
+			{
+				if (InElements.Contains(x[Column].ToString()))
+				{
+					x[Column] = OutElement;
+					Proceed++;
+				}
+				return x;
+			}).ToList();
             return Proceed;
         }
 		

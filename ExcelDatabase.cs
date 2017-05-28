@@ -72,10 +72,22 @@ namespace Stazis
 				}
 				for (int row = 0; row < DatabaseSet.Tables[SelectedTableIndex].Rows.Count; row++)
 				{
-					if (InputElements.Contains(currentSheet.GetRow(row + 1).GetCell(Column).StringCellValue))
+					switch (currentSheet.GetRow(row + 1).GetCell(Column).CellType)
 					{
-						currentSheet.GetRow(row + 1).GetCell(Column).SetCellValue(OutputElement);
-						Proceed++;
+						case CellType.String:
+							if (InputElements.Contains(currentSheet.GetRow(row + 1).GetCell(Column).StringCellValue))
+							{
+								currentSheet.GetRow(row + 1).GetCell(Column).SetCellValue(OutputElement);
+								Proceed++;
+							}
+							break;
+						case CellType.Numeric:
+							if (InputElements.Contains(currentSheet.GetRow(row + 1).GetCell(Column).NumericCellValue.ToString()))
+							{
+								currentSheet.GetRow(row + 1).GetCell(Column).SetCellValue(Convert.ToInt32(OutputElement));
+								Proceed++;
+							}
+							break;
 					}
 				}
 				switch (TypeOfDB)

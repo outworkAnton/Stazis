@@ -26,10 +26,6 @@ namespace Stazis
 		public Replacer replacerForm;
 		public Uniques uniquesForm;
 		string AppVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-		enum SaveSearchResult { Yes, No }
-		SaveSearchResult saveSearchResult = SaveSearchResult.No;
-		List<DataTable> backUpSet;
-		List<Type> typesColumnList;
 
 		public MainForm()
 		{
@@ -539,7 +535,6 @@ namespace Stazis
 						Application.DoEvents();
 					}
 					MaindataGrid.DataSource = newTable;
-					if (saveSearchResult == SaveSearchResult.Yes) backUpSet[tabControl1.SelectedIndex] = MaindataGrid.DataSource as DataTable;
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
@@ -561,7 +556,6 @@ namespace Stazis
 				Stopwatch perfWatch = new Stopwatch();
 				perfWatch.Start();
 				MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[tabControl1.SelectedIndex];
-				ConvertGridColumns(typesColumnList);
 				FormatDataGrid();
 				TimeSpan span = perfWatch.Elapsed;
 				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
@@ -625,32 +619,48 @@ namespace Stazis
 		{
 			try
 			{
-				toolStripProgressBar1.Visible = true;
 				int col = MaindataGrid.CurrentCell.ColumnIndex;
 				string columnName = MaindataGrid.Columns[col].HeaderText;
 				uniquesForm.colName = columnName;
-				DataTable tmpDataTable = (MaindataGrid.DataSource  as DataTable).Copy();
-				DataOperations.ChangeColumnType(MaindataGrid, tmpDataTable, col, typeof(string));
-				DataOperations.LoadUniques(tmpDataTable, col, uniquesForm.dataGridView1);
+				Stopwatch perfUniq = new Stopwatch();
+				perfUniq.Start();
+				Task loadUniquesTask = Task.Factory.StartNew(() =>
+				{
+					DataOperations.LoadUniques(MaindataGrid.DataSource as DataTable, col, uniquesForm.dataGridView1);
+				});
+				while (!loadUniquesTask.IsCompleted)
+				{
+					toolStripProgressBar1.Visible = true;
+					toolStripStatusLabel2.Text = "Производится вычисление уникальных значений столбца " + columnName + "..." ;
+					Application.DoEvents();
+				}
 				toolStripProgressBar1.Visible = false;
+				TimeSpan spanUniq = perfUniq.Elapsed;
+				toolStripStatusLabel2.Text = string.Format("Время вычисления составило: {0} мин {1} сек {2} мсек",  spanUniq.Minutes, spanUniq.Seconds, spanUniq.Milliseconds);
 				uniquesForm.ShowDialog(this);
 				if (uniquesForm.DialogResult == DialogResult.Yes)
 				{
+					toolStripStatusLabel2.Text = string.Empty;
 					Stopwatch perfWatch = new Stopwatch();
 					perfWatch.Start();
 					string CellValue = uniquesForm.QueryText;
-					DataTable newTable = new DataTable();
+					DataTable newTable = db.CurrentDataTable.Clone();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-						newTable = DataOperations.QueryProcess(tmpDataTable, col, CellValue);							
+						newTable = DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, col, CellValue);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
 						toolStripStatusLabel2.Text = "Производится обработка данных...";
 						Application.DoEvents();
 					}
-					MaindataGrid.DataSource = newTable;
-					if (saveSearchResult == SaveSearchResult.Yes) backUpSet[tabControl1.SelectedIndex] = MaindataGrid.DataSource as DataTable;
+					if (AppSettings.Default.SaveSearchResult)
+					{
+						db.CurrentDataTable.Clear();
+						db.CurrentDataTable.Merge(newTable);
+						MaindataGrid.DataSource = db.CurrentDataTable;
+					}
+					else MaindataGrid.DataSource = newTable;
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
@@ -887,7 +897,6 @@ namespace Stazis
 			DataTable tmpDataTable = (MaindataGrid.DataSource as DataTable).Copy();
 			tmpDataTable.Columns.RemoveAt(columnIndex);
 			MaindataGrid.DataSource = tmpDataTable;
-			if (saveSearchResult == SaveSearchResult.Yes) backUpSet[tabControl1.SelectedIndex] = MaindataGrid.DataSource as DataTable;
 			TimeSpan span = perfWatch.Elapsed;
 			toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
 			MaindataGrid.CurrentCell = null;
