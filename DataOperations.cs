@@ -231,6 +231,7 @@ namespace Stazis
 		public static void LoadUniques(DataTable Source, int Column, DataGridView Grid)
 		{
 			int Summary = 0;
+			int lastRowIndex;
 			Grid.DataSource = null;
 			Grid.Columns.Clear();
 			Grid.Columns.Add("Number", "№ п/п");
@@ -241,12 +242,13 @@ namespace Stazis
 				.ForEach(x =>
 					{
 						Grid.Rows.Add();
-						Grid.Rows[Grid.Rows.Count - 1].Cells[0].Value = Grid.Rows.Count;
+						lastRowIndex = Grid.Rows.Count - 1;
+						Grid.Rows[lastRowIndex].Cells[0].Value = Grid.Rows.Count;
 						if (string.IsNullOrWhiteSpace(x.Key))
-							Grid.Rows[Grid.Rows.Count - 1].Cells[1].Value = "<пустое значение>";
+							Grid.Rows[lastRowIndex].Cells[1].Value = "<пустое значение>";
 						else
-							Grid.Rows[Grid.Rows.Count - 1].Cells[1].Value = x.Key;
-						Grid.Rows[Grid.Rows.Count - 1].Cells[2].Value = x.LongCount().ToString();
+							Grid.Rows[lastRowIndex].Cells[1].Value = x.Key;
+						Grid.Rows[lastRowIndex].Cells[2].Value = x.LongCount().ToString();
 						Summary += (int)x.LongCount();
 					});
 			Grid.Rows.Add();
