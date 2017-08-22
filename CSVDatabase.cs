@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Stazis
 {
-	class CSVDatabase : DataBaseAbstract
+	class CSVDatabase : DataBaseModel
 	{
 		public CSVDatabase(string pathOfFile) : base(pathOfFile) { }
 
@@ -52,5 +52,10 @@ namespace Stazis
 			}
 			return csvData;
 		}
-	}
+
+        public override string GetNameOfType()
+        {
+            return "Файл CSV";
+        }
+    }
 }

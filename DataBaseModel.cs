@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.IO;
 
 namespace Stazis
 {
-	public abstract class DataBaseAbstract
+	public abstract class DataBaseModel
 	{
 		public enum DBmode { XLS, XLSX, CSV, SQLite};
 		public DBmode TypeOfDB { get; protected set; }
@@ -23,7 +25,7 @@ namespace Stazis
 		}
 		public DataTable CurrentDataTable { get; set; }
 
-		public DataBaseAbstract(string pathOfFile)
+		protected DataBaseModel(string pathOfFile)
 		{
 			NamesOfTables = new List<string>();
 			DatabaseSet = new DataSet();
@@ -40,20 +42,19 @@ namespace Stazis
 			Load(DatabasePath);
 		}
 
-		public string GetNameOfType()
-		{
-			switch (TypeOfDB)
-			{
-				case DBmode.XLS:
-					return "Книга Excel 97-2003";
-				case DBmode.XLSX:
-					return "Книга Excel 2007-...";
-				case DBmode.CSV:
-					return "Файл CSV";
-				case DBmode.SQLite:
-					return "База данных SQLite";
-				default: return "Неопознанный";
-			}
-		}
-	}
+        public abstract string GetNameOfType();
+
+        public virtual bool FileIsAvailable(string FilePath)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                    return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+    }
 }

@@ -10,7 +10,7 @@ using NPOI.XSSF.UserModel;
 
 namespace Stazis
 {
-	class ExcelDatabase : DataBaseAbstract, IChangebleDatabase
+	class ExcelDatabase : DataBaseModel, IDatabase
 	{
 		public ExcelDatabase(string pathOfFile) : base(pathOfFile) { }
 
@@ -41,8 +41,20 @@ namespace Stazis
 			}
 		}
 
-		#region IChangebleDatabase support
-		public int ChangeRecords(int Column, IList<string> InputElements, string OutputElement)
+        public override string GetNameOfType()
+        {
+            switch (TypeOfDB)
+            {
+                case DBmode.XLS:
+                    return "Книга Excel 97-2003";
+                case DBmode.XLSX:
+                    return "Книга Excel 2007-...";
+                default: return string.Empty;
+            }
+        }
+
+        #region IChangebleDatabase support
+        public int ChangeRecords(int Column, IList<string> InputElements, string OutputElement)
 		{
 			if (!FileIsAvailable(DatabasePath))
 			{
@@ -104,19 +116,6 @@ namespace Stazis
 				currentSheet = null;
 			}
 			return Proceed;
-		}
-
-		bool FileIsAvailable(string FilePath)
-		{
-			try
-			{
-				using (FileStream fs = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.None))
-					return true;
-			}
-			catch (Exception)
-			{
-				return false;
-			}
 		}
 
 		public void AddRecord(DataRow Record)

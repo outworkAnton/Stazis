@@ -18,7 +18,7 @@ namespace Stazis
 	public partial class MainForm : Form
 	{
 		public Database DB { get; set; }
-		public DataBaseAbstract db { get; set; }
+        public DataBaseModel db;
 		
 		public string AppDir = Application.StartupPath;
 		public ValueFilters filtersForm;
@@ -44,32 +44,15 @@ namespace Stazis
 					{
 						Stopwatch perfWatch = new Stopwatch();
 						perfWatch.Start();
-						toolStripProgressBar1.Visible = true;
-						Task databaseLoad = Task.Factory.StartNew( () => 
-						{
-							switch (Path.GetExtension(recentForm.PathOfDB))
-							{
-								case ".xls":
-								case ".xlsx":
-									db = new ExcelDatabase(recentForm.PathOfDB);
-									break;
-								case ".csv":
-									db = new CSVDatabase(recentForm.PathOfDB);
-									break;
-								case ".db":
-								case ".cdb":
-								case ".sqlite3":
-									db = new SQLiteDatabase(recentForm.PathOfDB);
-									break;
-							}
-						});
-						while (!databaseLoad.IsCompleted)
-						{
-							toolStripStatusLabel2.Text = "Производится загрузка данных...";
-							Application.DoEvents();
-						}
-						toolStripStatusLabel2.Text = string.Empty;
-						GetTablesList(db);
+                        db = DatabaseFabric.CreateDataBaseInstance(recentForm.PathOfDB);
+                        while (!DatabaseFabric.CreationCompleted)
+                        {
+                            toolStripProgressBar1.Visible = true;
+                            toolStripStatusLabel2.Text = "Производится загрузка данных...";
+                        }
+                        toolStripStatusLabel2.Text = string.Empty;
+                        toolStripProgressBar1.Visible = false;
+                        GetTablesList(db);
 						MaindataGrid.DataSource = db.CurrentDataTable;
 						//typesColumnList = GetTypesOfDataTableColumns();
 						CheckViewOfGrid();
@@ -77,7 +60,6 @@ namespace Stazis
 						uniquesForm = new Uniques();
 						filtersForm = new ValueFilters();
 						replacerForm = new Replacer(this);
-						toolStripProgressBar1.Visible = false;
 						TimeSpan span = perfWatch.Elapsed;
 						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(db.DatabasePath), db.GetNameOfType());
 						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
@@ -147,7 +129,7 @@ namespace Stazis
 			MaindataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 		}
 
-		void GetTablesList(DataBaseAbstract dB)
+		void GetTablesList(DataBaseModel dB)
 		{
 			tabControl1.TabPages.Clear();
 			foreach (string dTableName in dB.NamesOfTables)
@@ -189,7 +171,7 @@ namespace Stazis
 							break;
 					}
 					MaindataGrid.Columns[e.ColumnIndex].Selected = true;
-					if (db is IChangebleDatabase)
+					if (db is IDatabase)
 						пакетныйЗаменительToolStripMenuItem.Enabled = true;
 					else 
 						пакетныйЗаменительToolStripMenuItem.Enabled = false;
@@ -503,7 +485,7 @@ namespace Stazis
 			}
 			replacerForm.Col = colIndex;
 			replacerForm.ColName = MaindataGrid.Columns[colIndex].Name;
-			replacerForm.checkBox1.Enabled = (db is IChangebleDatabase);
+			replacerForm.checkBox1.Enabled = (db is IDatabase);
 			replacerForm.ShowDialog();
 		}
 

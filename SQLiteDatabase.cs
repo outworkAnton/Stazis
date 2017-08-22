@@ -4,11 +4,16 @@ using System.IO;
 
 namespace Stazis
 {
-	class SQLiteDatabase : DataBaseAbstract
+	class SQLiteDatabase : DataBaseModel
 	{
 		public SQLiteDatabase(string pathOfFile) : base(pathOfFile) { }
 
-		public override void Load(string pathOfFile)
+        public override string GetNameOfType()
+        {
+             return "База данных SQLite";
+        }
+
+        public override void Load(string pathOfFile)
 		{
 			using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{

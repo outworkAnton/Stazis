@@ -137,7 +137,8 @@
     </Compile>
     <Compile Include="CSVDatabase.cs" />
     <Compile Include="Database.cs" />
-    <Compile Include="DataBaseAbstract.cs" />
+    <Compile Include="DataBaseModel.cs" />
+    <Compile Include="DatabaseFabric.cs" />
     <Compile Include="DataOperationsTesting.cs" />
     <Compile Include="DiagramForm.cs">
       <SubType>Form</SubType>
@@ -146,7 +147,7 @@
       <DependentUpon>DiagramForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ExcelDatabase.cs" />
-    <Compile Include="IChangebleDatabase.cs" />
+    <Compile Include="IDatabase.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

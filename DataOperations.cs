@@ -286,7 +286,7 @@ namespace Stazis
 			}
 		}
 		
-		public static int ChangeRecords(DataBaseAbstract dataBase, int Column, IList<string> InElements, string OutElement)
+		public static int ChangeRecords(DataBaseModel dataBase, int Column, IList<string> InElements, string OutElement)
         {
             int Proceed = 0;
             if (OutElement == "<пустое значение>")
