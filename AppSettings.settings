@@ -25,5 +25,8 @@
   &lt;string&gt;База данных SQLite|*.sqlite3;*.db;*.cdb&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
+    <Setting Name="RecentList" Type="System.Collections.Specialized.StringDictionary" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

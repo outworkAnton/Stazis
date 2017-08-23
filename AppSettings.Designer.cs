@@ -99,5 +99,16 @@ namespace Stazis {
                 this["SupportedImportTypes"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringDictionary RecentList {
+            get {
+                return ((global::System.Collections.Specialized.StringDictionary)(this["RecentList"]));
+            }
+            set {
+                this["RecentList"] = value;
+            }
+        }
     }
 }

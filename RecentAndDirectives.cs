@@ -3,6 +3,8 @@ using System.ComponentModel;
 using Stazis.Properties;
 using System.Windows.Forms;
 using System.IO;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace Stazis
 {
@@ -15,32 +17,42 @@ namespace Stazis
             InitializeComponent();
         }
 
-        public void FillGrid(string[,] RecentList)
+        public void FillGrid(DataGridViewRowCollection RecentList)
         {
             if (RecentList != null)
             {
                 recentGrid.Columns[0].ValueType = typeof(DateTime);
                 recentGrid.Columns[0].SortMode = DataGridViewColumnSortMode.Programmatic;
-                for (int i = 0; i < RecentList.GetLength(1); i++)
+                foreach (var row in RecentList)
                 {
-                    recentGrid.Rows.Add();
-                    recentGrid[0, i].Value = DateTime.Parse(RecentList[0, i]);
-                    recentGrid[1, i].Value = RecentList[1, i];
+                    recentGrid.Rows.Add(row);
                 }
                 recentGrid.Sort(recentGrid.Columns[0], ListSortDirection.Descending);
             }
         }
 
-        public string[,] GetRecentList()
+        public static DataGridViewRowCollection GetRecentList()
 		{
-			string[,] ValuesFromReg = SettingsTools.Operations.GetValuesOfKey("Software\\Convex\\Stazis\\RecentList", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
-			if (ValuesFromReg != null)
-				return ValuesFromReg;
+            DataGridViewRowCollection RecentRecords = null;
+            if (AppSettings.Default.RecentList != null)
+            {
+                for (int i = 0; i < AppSettings.Default.RecentList.Count; i++)
+                {
+                    IList keys = null;
+                    IList values = null;
+                    AppSettings.Default.RecentList.Keys.CopyTo((Array)keys, 0);
+                    AppSettings.Default.RecentList.Values.CopyTo((Array)values, 0);
+                    RecentRecords.Add(DateTime.Parse((string)keys[i]), values[i].ToString());
+                } 
+            }
+            if (RecentRecords != null)
+				return RecentRecords;
 			return null;
 		}
-        public void SetRecentList(DataGridView Grid)
+
+        public static void SetRecentList(DataGridView Grid)
         {
-            string[,] tmp = new string[2, Grid.RowCount];
+            var tmp = new string[2, Grid.RowCount];
             for (int i = 0; i < Grid.RowCount; i++)
             {
                 if (!string.IsNullOrWhiteSpace(Grid[0, i].Value.ToString())) tmp[0, i] = Grid[0, i].Value.ToString();
@@ -94,8 +106,7 @@ namespace Stazis
         {
             var supportedTypes = new string[AppSettings.Default.SupportedImportTypes.Count];
             AppSettings.Default.SupportedImportTypes.CopyTo(supportedTypes, 0);
-            var supportedTypesString = string.Join("", supportedTypes);
-            openFileDialog1.Filter = supportedTypesString;
+            openFileDialog1.Filter = string.Join("", supportedTypes);
 			openFileDialog1.FilterIndex = 0;
             openFileDialog1.ShowDialog();
             if (!string.IsNullOrWhiteSpace(openFileDialog1.FileName))
