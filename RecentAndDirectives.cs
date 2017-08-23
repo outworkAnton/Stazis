@@ -92,7 +92,10 @@ namespace Stazis
 
         public void NewRecord()
         {
-			openFileDialog1.Filter = AppSettings.Default.SupportedImportTypes.ToString();
+            var supportedTypes = new string[AppSettings.Default.SupportedImportTypes.Count];
+            AppSettings.Default.SupportedImportTypes.CopyTo(supportedTypes, 0);
+            var supportedTypesString = string.Join("", supportedTypes);
+            openFileDialog1.Filter = supportedTypesString;
 			openFileDialog1.FilterIndex = 0;
             openFileDialog1.ShowDialog();
             if (!string.IsNullOrWhiteSpace(openFileDialog1.FileName))
