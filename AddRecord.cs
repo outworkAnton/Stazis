@@ -12,7 +12,7 @@ namespace Stazis
 	/// </summary>
 	public partial class AddRecord : Form
 	{
-		public Database DB { get; set; }
+		public DataBaseModel DB { get; set; }
 		
 		public AddRecord()
 		{
@@ -22,10 +22,10 @@ namespace Stazis
 		void ConvertColumnNames()
 		{
 			dataGridView1.Columns.Add("Values", "Значение");
-			for (int i = 0; i < DB.currentTable.Columns.Count; i++) 
+			for (int i = 0; i < DB.CurrentDataTable.Columns.Count; i++) 
 			{
 				dataGridView1.Rows.Add();
-				dataGridView1.Rows[i].HeaderCell.Value = DB.currentTable.Columns[i].ColumnName;
+				dataGridView1.Rows[i].HeaderCell.Value = DB.CurrentDataTable.Columns[i].ColumnName;
 			}
 			dataGridView1.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders);
 			if (dataGridView1.RowHeadersWidth > dataGridView1.Width / 2)
@@ -45,13 +45,13 @@ namespace Stazis
 		bool SaveRowToList()
 		{
 			
-			DataRow tmpRow = DB.currentTable.NewRow();
+			DataRow tmpRow = DB.CurrentDataTable.NewRow();
 			for (int i = 0; i < dataGridView1.Rows.Count; i++)
 			{
 				object row = dataGridView1.Rows[i].Cells[0].Value;
 				try 
 				{
-					switch (Type.GetTypeCode(DB.currentTable.Columns[i].DataType))
+					switch (Type.GetTypeCode(DB.CurrentDataTable.Columns[i].DataType))
 					{
 						case TypeCode.DateTime: 
 							tmpRow[i] = Convert.ToDateTime(row);
@@ -76,13 +76,13 @@ namespace Stazis
 					MessageBox.Show(string.Format("Значение строки {0} не соответствует типу данных в базе данных\n" +
 					                              "(Тип вводимых данных: {1}, тип значений базы данных: {2})\n" +
 					                              "Исправьте формат вводимых данных и повторите попытку сохранения\nСлужебная информация: {3}", 
-					                              (i + 1), row.GetType(), DB.currentTable.Columns[i].DataType, exc.StackTrace));
+					                              (i + 1), row.GetType(), DB.CurrentDataTable.Columns[i].DataType, exc.StackTrace));
 					return false;
 				}
 			}
 			if (string.IsNullOrWhiteSpace(string.Join("", tmpRow.ItemArray)))
 				return false;
-			DB.currentTable.Rows.Add(tmpRow);
+			DB.CurrentDataTable.Rows.Add(tmpRow);
 				return true;
 		}
 		

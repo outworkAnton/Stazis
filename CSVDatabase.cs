@@ -6,11 +6,9 @@ using System.Text;
 
 namespace Stazis
 {
-	class CSVDatabase : DataBaseModel
+	class CSVDatabase : DataBaseModel, ITable
 	{
-		public CSVDatabase(string pathOfFile) : base(pathOfFile) { }
-
-		public override void Load(string pathOfFile)
+		public void LoadTablesToMemory(string pathOfFile)
 		{
 			using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
@@ -53,7 +51,7 @@ namespace Stazis
 			return csvData;
 		}
 
-        public override string GetNameOfType()
+        public override string GetTypeNameOfDatabaseFile()
         {
             return "Файл CSV";
         }

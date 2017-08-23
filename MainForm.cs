@@ -17,7 +17,6 @@ namespace Stazis
 {
 	public partial class MainForm : Form
 	{
-		public Database DB { get; set; }
         public DataBaseModel db;
 		
 		public string AppDir = Application.StartupPath;
@@ -36,7 +35,7 @@ namespace Stazis
 		{
 			try 
 			{
-				a: recentForm = new RecentAndDirectives();
+				recentForm = new RecentAndDirectives();
 				recentForm.ShowDialog();
 				if (recentForm.DialogResult == DialogResult.OK)
 				{
@@ -44,8 +43,12 @@ namespace Stazis
 					{
 						Stopwatch perfWatch = new Stopwatch();
 						perfWatch.Start();
-                        db = DatabaseFabric.CreateDataBaseInstance(recentForm.PathOfDB);
-                        while (!DatabaseFabric.CreationCompleted)
+                        Task databaseLoad = Task.Factory.StartNew(() =>
+                        {
+                            db = DatabaseFabric.CreateDataBaseInstance(recentForm.PathOfDB);
+
+                        });
+                        while (!databaseLoad.IsCompleted)
                         {
                             toolStripProgressBar1.Visible = true;
                             toolStripStatusLabel2.Text = "Производится загрузка данных...";
@@ -61,14 +64,12 @@ namespace Stazis
 						filtersForm = new ValueFilters();
 						replacerForm = new Replacer(this);
 						TimeSpan span = perfWatch.Elapsed;
-						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(db.DatabasePath), db.GetNameOfType());
+						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(db.DatabasePath), db.GetTypeNameOfDatabaseFile());
 						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 					}
 					else
 					{
-						toolStripProgressBar1.Visible = false;
 						recentForm.Dispose();
-						goto a;
 					}
 				}
 				MaindataGrid.CurrentCell = null;
@@ -89,15 +90,15 @@ namespace Stazis
 			return tmpList;
 		}
 		
-		void ConvertGridColumns(List<Type> listOfTypes)
-		{
-			for (int i = 0; i < listOfTypes.Count; i++)
-			{
-				DataColumn col = DB.listOfTables.Tables[tabControl1.SelectedIndex].Columns[i];
-				if (col.DataType != listOfTypes[i])
-					DataOperations.ChangeColumnType(MaindataGrid, DB.listOfTables.Tables[tabControl1.SelectedIndex], col.Ordinal, listOfTypes[i]);
-			}
-		}
+		//void ConvertGridColumns(List<Type> listOfTypes)
+		//{
+		//	for (int i = 0; i < listOfTypes.Count; i++)
+		//	{
+		//		DataColumn col = DB.listOfTables.Tables[tabControl1.SelectedIndex].Columns[i];
+		//		if (col.DataType != listOfTypes[i])
+		//			DataOperations.ChangeColumnType(MaindataGrid, DB.listOfTables.Tables[tabControl1.SelectedIndex], col.Ordinal, listOfTypes[i]);
+		//	}
+		//}
 
 		void CheckViewOfGrid()
 		{
@@ -531,73 +532,73 @@ namespace Stazis
 			}
 		}
 
-		void сброситьРезультатыТекущегоПоискаToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			try 
-			{
-				Stopwatch perfWatch = new Stopwatch();
-				perfWatch.Start();
-				MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[tabControl1.SelectedIndex];
-				FormatDataGrid();
-				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
-				MaindataGrid.CurrentCell = null;
-			} 
-			catch (Exception exc) 
-			{
-				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
-			}
-		}
+        void сброситьРезультатыТекущегоПоискаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //	try 
+            //	{
+            //		Stopwatch perfWatch = new Stopwatch();
+            //		perfWatch.Start();
+            //		MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[tabControl1.SelectedIndex];
+            //		FormatDataGrid();
+            //		TimeSpan span = perfWatch.Elapsed;
+            //		toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+            //		MaindataGrid.CurrentCell = null;
+            //	} 
+            //	catch (Exception exc) 
+            //	{
+            //		MessageBox.Show(exc.Message);
+            //		LogManager.Log.AddToLog(AppDir, exc);
+            //	}
+        }
 
-		void сменитьИсточникДанныхToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			try 
-			{
-				a: recentForm = new RecentAndDirectives();
-				recentForm.ShowDialog();
-				if (recentForm.DialogResult == DialogResult.OK)
-				{
-					if (!string.IsNullOrWhiteSpace(recentForm.PathOfDB))
-					{
-						Stopwatch perfWatch = new Stopwatch();
-						perfWatch.Start();
-						toolStripProgressBar1.Visible = true;
-						Task taskInThread = Task.Factory.StartNew( () => 
-						{
-							DB = new Database(recentForm.PathOfDB);							
-						});
-						while (!taskInThread.IsCompleted)
-						{
-							toolStripStatusLabel2.Text = "Производится загрузка данных...";
-							Application.DoEvents();
-						}
-						toolStripStatusLabel2.Text = string.Empty;
-						GetTablesList(db);
-						MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[0];
-						CheckViewOfGrid();
-						FormatDataGrid();
-						toolStripProgressBar1.Visible = false;
-						TimeSpan span = perfWatch.Elapsed;
-						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(DB.pathOfDatabase), DB.GetTypeOfDBFile());
-						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
-					}
-					else
-					{
-						toolStripProgressBar1.Visible = false;
-						recentForm.Dispose();
-						goto a;
-					}
-				}
-			} 
-			catch (Exception exc) 
-			{
-				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
-			}
-		}
+        void сменитьИсточникДанныхToolStripMenuItem_Click(object sender, EventArgs e)
+            {
+                //	try 
+                //	{
+                //		a: recentForm = new RecentAndDirectives();
+                //		recentForm.ShowDialog();
+                //		if (recentForm.DialogResult == DialogResult.OK)
+                //		{
+                //			if (!string.IsNullOrWhiteSpace(recentForm.PathOfDB))
+                //			{
+                //				Stopwatch perfWatch = new Stopwatch();
+                //				perfWatch.Start();
+                //				toolStripProgressBar1.Visible = true;
+                //				Task taskInThread = Task.Factory.StartNew( () => 
+                //				{
+                //					DB = new Database(recentForm.PathOfDB);							
+                //				});
+                //				while (!taskInThread.IsCompleted)
+                //				{
+                //					toolStripStatusLabel2.Text = "Производится загрузка данных...";
+                //					Application.DoEvents();
+                //				}
+                //				toolStripStatusLabel2.Text = string.Empty;
+                //				GetTablesList(db);
+                //				MaindataGrid.DataSource = DB.currentTable = DB.listOfTables.Tables[0];
+                //				CheckViewOfGrid();
+                //				FormatDataGrid();
+                //				toolStripProgressBar1.Visible = false;
+                //				TimeSpan span = perfWatch.Elapsed;
+                //				Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(DB.pathOfDatabase), DB.GetTypeOfDBFile());
+                //				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+                //			}
+                //			else
+                //			{
+                //				toolStripProgressBar1.Visible = false;
+                //				recentForm.Dispose();
+                //				goto a;
+                //			}
+                //		}
+                //	} 
+                //	catch (Exception exc) 
+                //	{
+                //		MessageBox.Show(exc.Message);
+                //		LogManager.Log.AddToLog(AppDir, exc);
+                //	}
+            }
 
-		void списокУникальныхЗначенийToolStripMenuItem_Click(object sender, EventArgs e)
+        void списокУникальныхЗначенийToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			try
 			{
@@ -883,14 +884,14 @@ namespace Stazis
 			toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
 			MaindataGrid.CurrentCell = null;
 		}
-		
-		void добавитьЗаписьВИсточникToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			AddRecord addRecForm = new AddRecord() { DB = DB };
-			addRecForm.ShowDialog();
-		}
 
-		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        void добавитьЗаписьВИсточникToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //	AddRecord addRecForm = new AddRecord() { DB = DB };
+            //	addRecForm.ShowDialog();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			AppSettings.Default.Save();
 		}

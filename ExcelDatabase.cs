@@ -3,45 +3,53 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Windows.Forms;
-using Excel;
+using ExcelDataReader;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
 namespace Stazis
 {
-	class ExcelDatabase : DataBaseModel, IDatabase
+	class ExcelDatabase : DataBaseModel, ITable
 	{
-		public ExcelDatabase(string pathOfFile) : base(pathOfFile) { }
-
-		public override void Load(string pathOfFile)
+		public void LoadTablesToMemory(string pathOfFile)
 		{
 			using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
-				IExcelDataReader excelReader = null;
-				switch (Path.GetExtension(pathOfFile))
+				var excelReader = ExcelReaderFactory.CreateReader(fs);
+                switch (Path.GetExtension(pathOfFile))
 				{
 					case ".xls":
 						TypeOfDB = DBmode.XLS;
-						excelReader = ExcelReaderFactory.CreateBinaryReader(fs);
 						break;
 					case ".xlsx":
 						TypeOfDB = DBmode.XLSX;
-						excelReader = ExcelReaderFactory.CreateOpenXmlReader(fs);
 						break;
 				}
-				excelReader.IsFirstRowAsColumnNames = true;
-				foreach (DataTable table in excelReader.AsDataSet(true).Tables)
+                var excelDataSetConfiguration = new ExcelDataSetConfiguration()
+                {
+                    UseColumnDataType = true,
+                    ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration()
+                    {
+                        EmptyColumnNamePrefix = "Column",
+                        UseHeaderRow = true,
+                        ReadHeaderRow = (rowReader) =>
+                        {
+                            rowReader.Read();
+                        }
+                    }
+                };
+                foreach (DataTable table in excelReader.AsDataSet(excelDataSetConfiguration).Tables)
 				{
 					NamesOfTables.Add(table.TableName);
-					DatabaseSet.Tables.Add(table.Copy());
+					DatabaseSet.Tables.Add(table);
 				}
-				excelReader.Close();
+				//excelReader.Close();
 				SelectedTableIndex = 0;
 			}
 		}
 
-        public override string GetNameOfType()
+        public override string GetTypeNameOfDatabaseFile()
         {
             switch (TypeOfDB)
             {

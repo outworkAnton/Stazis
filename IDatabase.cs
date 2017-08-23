@@ -5,7 +5,9 @@ namespace Stazis
 {
 	public interface IDatabase
 	{
-		void AddRecord(DataRow Record);
-		int ChangeRecords(int Column, IList<string> InputElements, string OutputElement);
+        void ConnectToDatabase(string FilePath);
+
+		//void AddRecord(DataRow Record);
+		//int ChangeRecords(int Column, IList<string> InputElements, string OutputElement);
 	}
 }

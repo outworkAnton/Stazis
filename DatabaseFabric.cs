@@ -9,34 +9,37 @@ namespace Stazis
 {
     static class DatabaseFabric
     {
-        public static bool CreationCompleted;
-
         public static DataBaseModel CreateDataBaseInstance(string FilePath)
         {
             DataBaseModel dataBase = null;
-            Task databaseLoad = Task.Factory.StartNew(() =>
+            switch (Path.GetExtension(FilePath))
             {
-                switch (Path.GetExtension(FilePath))
-                {
-                    case ".xls":
-                    case ".xlsx":
-                        dataBase = new ExcelDatabase(FilePath);
-                        break;
-                    case ".csv":
-                        dataBase = new CSVDatabase(FilePath);
-                        break;
-                    case ".db":
-                    case ".cdb":
-                    case ".sqlite3":
-                        dataBase = new SQLiteDatabase(FilePath);
-                        break;
-                }
-            });
-            while (!databaseLoad.IsCompleted)
-            {
-                CreationCompleted = false;
+                case ".xls":
+                case ".xlsx":
+                    dataBase = new ExcelDatabase();
+                    break;
+                case ".csv":
+                    dataBase = new CSVDatabase();
+                    break;
+                case ".db":
+                case ".cdb":
+                case ".sqlite3":
+                    dataBase = new SQLiteDatabase();
+                    break;
             }
-            CreationCompleted = true;
+            switch (dataBase)
+            {
+                case ITable t:
+                    {
+                        (dataBase as ITable).LoadTablesToMemory(FilePath);
+                        break;
+                    }
+                case IDatabase d:
+                    {
+                        (dataBase as IDatabase).ConnectToDatabase(FilePath);
+                        break;
+                    }
+            }
             return dataBase;
         }
     }

@@ -312,35 +312,35 @@ namespace Stazis
 					"|Файл CSV|*.csv";
 		}
 
-        public static int CorrectColumnRecords(Database dataBase, int sheetIndex, int Column, CheckedListBox.CheckedItemCollection Parameters, bool ReplaceAlsoInSourceFile)
+        public static int CorrectColumnRecords(DataBaseModel dataBase, int sheetIndex, int Column, CheckedListBox.CheckedItemCollection Parameters, bool ReplaceAlsoInSourceFile)
         {
         	int Proceed = 0;
             HSSFWorkbook WorkbookXLS = new HSSFWorkbook();
         	XSSFWorkbook WorkbookXLSX = new XSSFWorkbook();
             ISheet currentSheet = null;
             FileStream fs = null;
-            if (!FileIsAvailable(dataBase.pathOfDatabase))
+            if (!FileIsAvailable(dataBase.DatabasePath))
             {
                 if (MessageBox.Show("Файл открыт в другой программе.\nПродолжить процесс корректировки в загруженном в программу экземпляре?", "Корректировать в программе без сохранения в файле?", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.No)
                     return 0;
                 ReplaceAlsoInSourceFile = false;
             }
 			if (ReplaceAlsoInSourceFile)
-				using (fs = new FileStream(dataBase.pathOfDatabase, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+				using (fs = new FileStream(dataBase.DatabasePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
 					switch (dataBase.TypeOfDB)
 					{
-						case Database.DBmode.XLS:
+						case DataBaseModel.DBmode.XLS:
 							WorkbookXLS = new HSSFWorkbook(fs);
 							currentSheet = WorkbookXLS.GetSheetAt(sheetIndex);
 							break;
-						case Database.DBmode.XLSX:
+						case DataBaseModel.DBmode.XLSX:
 							WorkbookXLSX = new XSSFWorkbook(fs);
 							currentSheet = WorkbookXLSX.GetSheetAt(sheetIndex);
 							break;
 					}
-            for (int row = 0; row < dataBase.listOfTables.Tables[sheetIndex].Rows.Count; row++)
+            for (int row = 0; row < dataBase.DatabaseSet.Tables[sheetIndex].Rows.Count; row++)
             {
-            	string text = dataBase.listOfTables.Tables[sheetIndex].Rows[row][Column].ToString();
+            	string text = dataBase.DatabaseSet.Tables[sheetIndex].Rows[row][Column].ToString();
 				if (Parameters.Contains("Убрать пробелы с концов строки"))
 					text = text.Trim();
 				if (Parameters.Contains("Удалить пробелы из строки"))
@@ -349,21 +349,21 @@ namespace Stazis
 					text = text.ToUpper();
 				if (Parameters.Contains("Сменить регистр записей на нижний"))
 					text = text.ToLower();
-                dataBase.listOfTables.Tables[sheetIndex].Rows[row][Column] = text;
+                dataBase.DatabaseSet.Tables[sheetIndex].Rows[row][Column] = text;
                 if (ReplaceAlsoInSourceFile) currentSheet.GetRow(row + 1).GetCell(Column).SetCellValue(text);
                 Proceed++;
                 Application.DoEvents();
             }
-            dataBase.listOfTables.AcceptChanges();
+            dataBase.DatabaseSet.AcceptChanges();
             if (ReplaceAlsoInSourceFile)
             {
-            	using (fs = new FileStream(dataBase.pathOfDatabase, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+            	using (fs = new FileStream(dataBase.DatabasePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                 switch (dataBase.TypeOfDB)
                 {
-                    case Database.DBmode.XLS:
+                    case DataBaseModel.DBmode.XLS:
                             WorkbookXLS.Write(fs);
                         break;
-                    case Database.DBmode.XLSX:
+                    case DataBaseModel.DBmode.XLSX:
                             WorkbookXLSX.Write(fs);
                         break;
                 }

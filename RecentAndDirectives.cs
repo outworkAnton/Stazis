@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Linq;
+using Stazis.Properties;
 using System.Windows.Forms;
 using System.IO;
 
@@ -92,7 +92,7 @@ namespace Stazis
 
         public void NewRecord()
         {
-			openFileDialog1.Filter = Database.GetImportFileTypes();
+			openFileDialog1.Filter = AppSettings.Default.SupportedImportTypes.ToString();
 			openFileDialog1.FilterIndex = 0;
             openFileDialog1.ShowDialog();
             if (!string.IsNullOrWhiteSpace(openFileDialog1.FileName))

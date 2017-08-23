@@ -4,20 +4,20 @@ using System.IO;
 
 namespace Stazis
 {
-	class SQLiteDatabase : DataBaseModel
+	class SQLiteDatabase : DataBaseModel, IDatabase
 	{
-		public SQLiteDatabase(string pathOfFile) : base(pathOfFile) { }
+		public SQLiteDatabase() { TypeOfDB = DBmode.SQLite; }
 
-        public override string GetNameOfType()
+        public override string GetTypeNameOfDatabaseFile()
         {
              return "База данных SQLite";
         }
 
-        public override void Load(string pathOfFile)
+        public void ConnectToDatabase(string pathOfFile)
 		{
 			using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
-				TypeOfDB = DBmode.SQLite;
+				
 				SQLiteFactory factory = (SQLiteFactory)System.Data.Common.DbProviderFactories.GetFactory("System.Data.SQLite");
 				SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection();
 				SQLiteDataAdapter adapter = new SQLiteDataAdapter();
