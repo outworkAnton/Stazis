@@ -263,3 +263,5 @@ __pycache__/
 StyleCopViolations.xml
 *.db
 \.vscode/
+/Examples/LogDB.csv
+/Examples/WTdataBase.cdb
