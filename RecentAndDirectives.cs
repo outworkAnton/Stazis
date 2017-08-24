@@ -17,7 +17,7 @@ namespace Stazis
             InitializeComponent();
         }
 
-        public void FillGrid(DataGridViewRowCollection RecentList)
+        public void FillGrid(DataGridViewRow[] RecentList)
         {
             if (RecentList != null)
             {
@@ -31,18 +31,18 @@ namespace Stazis
             }
         }
 
-        public static DataGridViewRowCollection GetRecentList()
+        public DataGridViewRow[] GetRecentList()
 		{
-            DataGridViewRowCollection RecentRecords = null;
+            DataGridViewRow[] RecentRecords = null;
             if (AppSettings.Default.RecentList != null)
             {
+                RecentRecords = new DataGridViewRow[AppSettings.Default.RecentList.Count];
                 for (int i = 0; i < AppSettings.Default.RecentList.Count; i++)
                 {
-                    IList keys = null;
-                    IList values = null;
-                    AppSettings.Default.RecentList.Keys.CopyTo((Array)keys, 0);
-                    AppSettings.Default.RecentList.Values.CopyTo((Array)values, 0);
-                    RecentRecords.Add(DateTime.Parse((string)keys[i]), values[i].ToString());
+                    var pair = AppSettings.Default.RecentList[i].Split('#');
+                    var row = new DataGridViewRow();
+                    row.SetValues(DateTime.Parse(pair[0]), pair[1]);
+                    RecentRecords[i] = row;
                 } 
             }
             if (RecentRecords != null)
@@ -52,13 +52,17 @@ namespace Stazis
 
         public static void SetRecentList(DataGridView Grid)
         {
-            var tmp = new string[2, Grid.RowCount];
-            for (int i = 0; i < Grid.RowCount; i++)
+            if (AppSettings.Default.RecentList == null)
             {
-                if (!string.IsNullOrWhiteSpace(Grid[0, i].Value.ToString())) tmp[0, i] = Grid[0, i].Value.ToString();
-                if (!string.IsNullOrWhiteSpace(Grid[1, i].Value.ToString())) tmp[1, i] = Grid[1, i].Value.ToString();
+                AppSettings.Default.RecentList = new System.Collections.Specialized.StringCollection();
             }
-            SettingsTools.Operations.SetValuesForKey(tmp, "Software\\Convex\\Stazis\\RecentList", SettingsTools.Operations.HiveKey.HKEY_CURRENT_USER);
+            foreach(DataGridViewRow row in Grid.Rows)
+            {
+                if (row != null)
+                {
+                    AppSettings.Default.RecentList.Add(row.Cells[0].Value + "#" + row.Cells[1].Value);
+                }
+            }
         }
 
         void RecentAndDirectives_Load(object sender, EventArgs e)
@@ -131,8 +135,9 @@ namespace Stazis
 
         void RecentAndDirectives_FormClosing(object sender, FormClosingEventArgs e)
         {
-        	if (DialogResult == DialogResult.OK)
+            if (DialogResult == DialogResult.OK)
             SetRecentList(recentGrid);
+            AppSettings.Default.Save();
         }
 
         void новаяЗаписьToolStripMenuItem_Click(object sender, EventArgs e)
@@ -166,8 +171,16 @@ namespace Stazis
         void удалитьЗаписьToolStripMenuItem_Click(object sender, EventArgs e)
         {
         	if ((recentGrid.Rows.Count > 0))
-				if (!string.IsNullOrEmpty(recentGrid.SelectedCells[0].Value.ToString()))
-					recentGrid.Rows.RemoveAt(recentGrid.SelectedCells[0].RowIndex);
+            {
+                if (!string.IsNullOrEmpty(recentGrid.SelectedCells[0].Value.ToString()))
+                {
+                    recentGrid.Rows.RemoveAt(recentGrid.SelectedCells[0].RowIndex);
+                }
+            }
+            if (recentGrid.RowCount == 0)
+            {
+                NewRecord();
+            }
         }
     }
 }

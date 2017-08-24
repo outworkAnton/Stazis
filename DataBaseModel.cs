@@ -7,11 +7,11 @@ namespace Stazis
 {
 	public abstract class DataBaseModel
 	{
-		public enum DBmode { XLS, XLSX, CSV, SQLite};
+		public enum DBmode { Excel, CSV, SQLite};
 		public DBmode TypeOfDB { get; protected set; }
 		public List<string> NamesOfTables { get; protected set; }
 		public DataSet DatabaseSet { get; protected set; }
-		public readonly string DatabasePath;
+		public string DatabasePath { get; protected set; }
 
 		int selectedTableIndex;
 		public int SelectedTableIndex

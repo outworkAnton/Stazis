@@ -15,7 +15,8 @@ namespace Stazis
 
         public void ConnectToDatabase(string pathOfFile)
 		{
-			using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            DatabasePath = pathOfFile;
+            using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
 				
 				SQLiteFactory factory = (SQLiteFactory)System.Data.Common.DbProviderFactories.GetFactory("System.Data.SQLite");

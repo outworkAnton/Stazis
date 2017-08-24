@@ -8,11 +8,13 @@ namespace Stazis
 {
 	class CSVDatabase : DataBaseModel, ITable
 	{
+        public CSVDatabase() { TypeOfDB = DBmode.CSV; }
+
 		public void LoadTablesToMemory(string pathOfFile)
 		{
-			using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            DatabasePath = pathOfFile;
+            using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
-				TypeOfDB = DBmode.CSV;
 				NamesOfTables.Add("Imported from CSV file data");
 				DatabaseSet.Tables.Add(GetDataTableFromCSVFile(fs));
 				SelectedTableIndex = 0;
