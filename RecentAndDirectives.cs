@@ -17,38 +17,21 @@ namespace Stazis
             InitializeComponent();
         }
 
-        public void FillGrid(DataGridViewRow[] RecentList)
+        public void GetRecentList()
         {
-            if (RecentList != null)
+            AppSettings.Default.Upgrade();
+            if (AppSettings.Default.RecentList != null)
             {
                 recentGrid.Columns[0].ValueType = typeof(DateTime);
                 recentGrid.Columns[0].SortMode = DataGridViewColumnSortMode.Programmatic;
-                foreach (var row in RecentList)
+                foreach (var row in AppSettings.Default.RecentList)
                 {
-                    recentGrid.Rows.Add(row);
+                    var pair = row.Split('#');
+                    recentGrid.Rows.Add(pair);
                 }
                 recentGrid.Sort(recentGrid.Columns[0], ListSortDirection.Descending);
             }
         }
-
-        public DataGridViewRow[] GetRecentList()
-		{
-            DataGridViewRow[] RecentRecords = null;
-            if (AppSettings.Default.RecentList != null)
-            {
-                RecentRecords = new DataGridViewRow[AppSettings.Default.RecentList.Count];
-                for (int i = 0; i < AppSettings.Default.RecentList.Count; i++)
-                {
-                    var pair = AppSettings.Default.RecentList[i].Split('#');
-                    var row = new DataGridViewRow();
-                    row.SetValues(DateTime.Parse(pair[0]), pair[1]);
-                    RecentRecords[i] = row;
-                } 
-            }
-            if (RecentRecords != null)
-				return RecentRecords;
-			return null;
-		}
 
         public static void SetRecentList(DataGridView Grid)
         {
@@ -69,7 +52,7 @@ namespace Stazis
         {
             recentGrid.Columns[0].Width = 150;
             recentGrid.Columns[1].Width = recentGrid.Width - 155;
-            FillGrid(GetRecentList());
+            GetRecentList();
             if (recentGrid.RowCount == 0)
                 NewRecord();
         }
@@ -117,7 +100,16 @@ namespace Stazis
             {
                 recentGrid.Rows.Insert(0, 1);
                 recentGrid[0, 0].Value = DateTime.Now.ToString();
-                recentGrid[1, 0].Value = openFileDialog1.FileName;
+                if (!openFileDialog1.FileName.Equals(recentGrid[1, 0].Value))
+                {
+                    recentGrid[1, 0].Value = openFileDialog1.FileName; 
+                }
+                else
+                {
+                    MessageBox.Show("Выбранный файл уже присутствует в списке", "Добавление дубликата", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    recentGrid.Rows.RemoveAt(0);
+                    return;
+                }
                 PathOfDB = openFileDialog1.FileName;
                 DialogResult = DialogResult.OK;
             }
@@ -174,6 +166,7 @@ namespace Stazis
             {
                 if (!string.IsNullOrEmpty(recentGrid.SelectedCells[0].Value.ToString()))
                 {
+                    AppSettings.Default.RecentList.RemoveAt(recentGrid.SelectedCells[0].RowIndex);
                     recentGrid.Rows.RemoveAt(recentGrid.SelectedCells[0].RowIndex);
                 }
             }
