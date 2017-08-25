@@ -16,7 +16,7 @@ namespace Stazis
 {
 	public partial class MainForm : Form
 	{
-        public DataBaseModel db;
+        public IDatabase db;
 		
 		public string AppDir = Application.StartupPath;
 		public ValueFilters filtersForm;
@@ -129,7 +129,7 @@ namespace Stazis
 			MaindataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 		}
 
-		void GetTablesList(DataBaseModel dB)
+		void GetTablesList(IDatabase dB)
 		{
 			tabControl1.TabPages.Clear();
 			foreach (string dTableName in dB.NamesOfTables)

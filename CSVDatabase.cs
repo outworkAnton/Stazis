@@ -6,11 +6,17 @@ using System.Text;
 
 namespace Stazis
 {
-	class CSVDatabase : DataBaseModel, ITable
+	class CSVDatabase : IDatabase
 	{
-        public CSVDatabase() { TypeOfDB = DBmode.CSV; }
+        public List<string> NamesOfTables { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public DataSet DatabaseSet { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public string DatabasePath { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public int SelectedTableIndex { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public DataTable CurrentDataTable { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
-		public void LoadTablesToMemory(string pathOfFile)
+        public CSVDatabase() { }
+
+		public void ConnectToDatabase(string pathOfFile)
 		{
             DatabasePath = pathOfFile;
             using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -53,9 +59,29 @@ namespace Stazis
 			return csvData;
 		}
 
-        public override string GetTypeNameOfDatabaseFile()
+        public string GetTypeNameOfDatabaseFile()
         {
             return "Файл CSV";
+        }
+
+        public void Reload()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void DisconnectFromDatabase()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void AddRecord(DataRow Record)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public int ChangeRecordsInColumn(int Column, IList<string> InputElements, string OutputElement)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

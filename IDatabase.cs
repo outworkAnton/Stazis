@@ -5,9 +5,21 @@ namespace Stazis
 {
 	public interface IDatabase
 	{
-        void ConnectToDatabase(string FilePath);
+        #region Properties
+        List<string> NamesOfTables { get; set; }
+        DataSet DatabaseSet { get; set; }
+        string DatabasePath { get; set; }
+        int SelectedTableIndex { get; set; }
+        DataTable CurrentDataTable { get; set; }
+        #endregion
 
-		//void AddRecord(DataRow Record);
-		//int ChangeRecords(int Column, IList<string> InputElements, string OutputElement);
-	}
+        #region Methods
+        void ConnectToDatabase(string FilePath);
+        void Reload();
+        void DisconnectFromDatabase();
+        string GetTypeNameOfDatabaseFile();
+        void AddRecord(DataRow Record);
+        int ChangeRecordsInColumn(int Column, IList<string> InputElements, string OutputElement);
+        #endregion
+    }
 }

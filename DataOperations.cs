@@ -20,6 +20,8 @@ namespace Stazis
         public enum SearchIntMode { EqualTo, LargerThen, SmallerThen };
         public enum SearchTextMode { Equals, StartWith, Contains };
 
+
+
         public static DataTable QueryProcess(DataTable Source, int Column, DateTime Start, DateTime End)
         {
             return (from order in Source.AsEnumerable()
@@ -273,12 +275,14 @@ namespace Stazis
             }
         }
 
-        static bool FileIsAvailable(string FilePath)
+        public static bool FileIsAvailable(string FilePath)
         {
             try
             {
                 using (FileStream fs = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
                     return true;
+                }
             }
             catch (Exception)
             {
@@ -286,7 +290,7 @@ namespace Stazis
             }
         }
 
-        public static int ChangeRecords(DataBaseModel dataBase, int Column, IList<string> InElements, string OutElement)
+        public static int ChangeRecords(IDatabase dataBase, int Column, IList<string> InElements, string OutElement)
         {
             int Proceed = 0;
             if (OutElement == "<пустое значение>")
@@ -312,7 +316,7 @@ namespace Stazis
                     "|Файл CSV|*.csv";
         }
 
-        public static int CorrectColumnRecords(DataBaseModel dataBase, int sheetIndex, int Column, CheckedListBox.CheckedItemCollection Parameters, bool ReplaceAlsoInSourceFile)
+        public static int CorrectColumnRecords(IDatabase dataBase, int sheetIndex, int Column, CheckedListBox.CheckedItemCollection Parameters, bool ReplaceAlsoInSourceFile)
         {
             int Proceed = 0;
             IWorkbook workbook = null;

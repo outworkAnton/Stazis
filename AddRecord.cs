@@ -12,7 +12,7 @@ namespace Stazis
 	/// </summary>
 	public partial class AddRecord : Form
 	{
-		public DataBaseModel DB { get; set; }
+		public IDatabase DB { get; set; }
 		
 		public AddRecord()
 		{

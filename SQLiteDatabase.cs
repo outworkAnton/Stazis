@@ -1,14 +1,21 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
 
 namespace Stazis
 {
-	class SQLiteDatabase : DataBaseModel, IDatabase
+	class SQLiteDatabase : IDatabase
 	{
-		public SQLiteDatabase() { TypeOfDB = DBmode.SQLite; }
+        public List<string> NamesOfTables { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public DataSet DatabaseSet { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public string DatabasePath { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public int SelectedTableIndex { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public DataTable CurrentDataTable { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
-        public override string GetTypeNameOfDatabaseFile()
+        public SQLiteDatabase() { }
+
+        public string GetTypeNameOfDatabaseFile()
         {
              return "База данных SQLite";
         }
@@ -40,5 +47,25 @@ namespace Stazis
 				SelectedTableIndex = 0;
 			}
 		}
-	}
+
+        public void Reload()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void DisconnectFromDatabase()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void AddRecord(DataRow Record)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public int ChangeRecordsInColumn(int Column, IList<string> InputElements, string OutputElement)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
 }

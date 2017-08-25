@@ -10,13 +10,21 @@ using NPOI.XSSF.UserModel;
 
 namespace Stazis
 {
-    class ExcelDatabase : DataBaseModel, ITable
+    class ExcelDatabase : IDatabase
     {
-        public ExcelDatabase() { TypeOfDB = DBmode.Excel; }
+        public DataSet DatabaseSet { get; private set; }
+        public List<string> NamesOfTables { get; private set; }
+        public int SelectedTableIndex { get; private set; }
+        public string DatabasePath { get; set; }
+        List<string> IDatabase.NamesOfTables { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        DataSet IDatabase.DatabaseSet { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        int IDatabase.SelectedTableIndex { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public DataTable CurrentDataTable { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public void LoadTablesToMemory(string pathOfFile)
+        public ExcelDatabase() { }
+
+        public void ConnectToDatabase(string pathOfFile)
         {
-            DatabasePath = pathOfFile;
             Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             var excelReader = ExcelReaderFactory.CreateReader(fs);
             var excelDataSetConfiguration = new ExcelDataSetConfiguration
@@ -29,15 +37,15 @@ namespace Stazis
                 }
             };
             DatabaseSet = excelReader.AsDataSet(excelDataSetConfiguration);
+            NamesOfTables = new List<string>();
             foreach (DataTable table in DatabaseSet.Tables)
             {
                 NamesOfTables.Add(table.TableName);
             }
-            //excelReader.Close();
             SelectedTableIndex = 0;
         }
 
-        public override string GetTypeNameOfDatabaseFile()
+        public string GetTypeNameOfDatabaseFile()
         {
             return "Книга MS Excel";
         }
@@ -45,7 +53,7 @@ namespace Stazis
         #region IChangebleDatabase support
         public int ChangeRecords(int Column, IList<string> InputElements, string OutputElement)
         {
-            if (!FileIsAvailable(DatabasePath))
+            if (! DataOperations.FileIsAvailable(DatabasePath))
             {
                 MessageBox.Show("Закройте файл в другой программе и повторите попытку", "Файл открыт в другой программе");
                 return 0;
@@ -90,7 +98,22 @@ namespace Stazis
 
         public void AddRecord(DataRow Record)
         {
+            throw new NotImplementedException();
+        }
 
+        public void Reload()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisconnectFromDatabase()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int ChangeRecordsInColumn(int Column, IList<string> InputElements, string OutputElement)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

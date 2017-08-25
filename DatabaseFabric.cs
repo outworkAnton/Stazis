@@ -9,9 +9,9 @@ namespace Stazis
 {
     static class DatabaseFabric
     {
-        public static DataBaseModel CreateDataBaseInstance(string FilePath)
+        public static IDatabase CreateDataBaseInstance(string FilePath)
         {
-            DataBaseModel dataBase = null;
+            IDatabase dataBase = null;
             switch (Path.GetExtension(FilePath))
             {
                 case ".xls":
@@ -27,19 +27,8 @@ namespace Stazis
                     dataBase = new SQLiteDatabase();
                     break;
             }
-            switch (dataBase)
-            {
-                case ITable t:
-                    {
-                        (dataBase as ITable).LoadTablesToMemory(FilePath);
-                        break;
-                    }
-                case IDatabase d:
-                    {
-                        (dataBase as IDatabase).ConnectToDatabase(FilePath);
-                        break;
-                    }
-            }
+            dataBase.ConnectToDatabase(FilePath);
+            dataBase.DatabasePath = FilePath;
             return dataBase;
         }
     }
