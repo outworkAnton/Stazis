@@ -6,6 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using ExtensibilityInterface;
+using DatabaseFactoryCore;
+using DataOperationsModule;
 
 //TODO диаграммы
 //TODO многоуровневая сортировка
@@ -16,7 +19,7 @@ namespace Stazis
 {
 	public partial class MainForm : Form
 	{
-        public IDatabase db;
+        public IExtensibility db;
 		
 		public string AppDir = Application.StartupPath;
 		public ValueFilters filtersForm;
@@ -44,17 +47,18 @@ namespace Stazis
 						perfWatch.Start();
                         Task databaseLoad = Task.Factory.StartNew(() =>
                         {
-                            db = DatabaseFabric.CreateDataBaseInstance(recentForm.PathOfDB);
-
+                            db = new DatabaseFactory().CreateDataBaseInstance(recentForm.PathOfDB);
                         });
                         while (!databaseLoad.IsCompleted)
                         {
                             toolStripProgressBar1.Visible = true;
                             toolStripStatusLabel2.Text = "Производится загрузка данных...";
+                            Application.DoEvents();
                         }
                         toolStripStatusLabel2.Text = string.Empty;
                         toolStripProgressBar1.Visible = false;
                         GetTablesList(db);
+                        db.SelectedTableIndex = 0;
 						MaindataGrid.DataSource = db.CurrentDataTable;
 						//typesColumnList = GetTypesOfDataTableColumns();
 						CheckViewOfGrid();
@@ -129,7 +133,7 @@ namespace Stazis
 			MaindataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 		}
 
-		void GetTablesList(IDatabase dB)
+        void GetTablesList(IExtensibility dB)
 		{
 			tabControl1.TabPages.Clear();
 			foreach (string dTableName in dB.NamesOfTables)
@@ -171,7 +175,7 @@ namespace Stazis
 							break;
 					}
 					MaindataGrid.Columns[e.ColumnIndex].Selected = true;
-					if (db is IDatabase)
+					if (db is IExtensibility)
 						пакетныйЗаменительToolStripMenuItem.Enabled = true;
 					else 
 						пакетныйЗаменительToolStripMenuItem.Enabled = false;
@@ -485,7 +489,7 @@ namespace Stazis
 			}
 			replacerForm.Col = colIndex;
 			replacerForm.ColName = MaindataGrid.Columns[colIndex].Name;
-			replacerForm.checkBox1.Enabled = (db is IDatabase);
+			replacerForm.checkBox1.Enabled = (db is IExtensibility);
 			replacerForm.ShowDialog();
 		}
 
@@ -798,7 +802,7 @@ namespace Stazis
 		{
 			try 
 			{
-				saveFileDialog1.Filter = DataOperations.GetExportFileTypes();
+				//saveFileDialog1.Filter = DataOperations.GetExportFileTypes();
 				saveFileDialog1.FilterIndex = 0;
 				if (saveFileDialog1.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(saveFileDialog1.FileName))
 				{

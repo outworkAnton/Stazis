@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 
-namespace Stazis
+namespace ExtensibilityInterface
 {
-	public interface IDatabase
-	{
+    public interface IExtensibility
+    {
         #region Properties
-        List<string> NamesOfTables { get; set; }
+        IList<string> NamesOfTables { get; set; }
         DataSet DatabaseSet { get; set; }
         string DatabasePath { get; set; }
         int SelectedTableIndex { get; set; }
-        DataTable CurrentDataTable { get; set; }
+        DataTable CurrentDataTable { get; }
         #endregion
 
         #region Methods
@@ -20,6 +20,7 @@ namespace Stazis
         string GetTypeNameOfDatabaseFile();
         void AddRecord(DataRow Record);
         int ChangeRecordsInColumn(int Column, IList<string> InputElements, string OutputElement);
+        IList<string> GetDatabaseFileExtension();
         #endregion
     }
 }

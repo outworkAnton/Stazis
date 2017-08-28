@@ -1,18 +1,16 @@
-﻿
+﻿using ExtensibilityInterface;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace Stazis
 {
-	/// <summary>
-	/// Description of AddRecord.
-	/// </summary>
-	public partial class AddRecord : Form
+    /// <summary>
+    /// Description of AddRecord.
+    /// </summary>
+    public partial class AddRecord : Form
 	{
-		public IDatabase DB { get; set; }
+        public IExtensibility DB { get; set; }
 		
 		public AddRecord()
 		{

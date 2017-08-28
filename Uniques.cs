@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Linq;
 using System.Data;
+using DataOperationsModule;
 
 namespace Stazis
 {
@@ -69,7 +70,7 @@ namespace Stazis
         {
         	try 
         	{
-        		mainForm.saveFileDialog1.Filter = DataOperations.GetExportFileTypes();
+        		//mainForm.saveFileDialog1.Filter = DataOperations.GetExportFileTypes();
 				mainForm.saveFileDialog1.FilterIndex = 0;
         		if (mainForm.saveFileDialog1.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(mainForm.saveFileDialog1.FileName)) 
         		{

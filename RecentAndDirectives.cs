@@ -85,6 +85,7 @@ namespace Stazis
                     row.Cells[0].Value = DateTime.Now.ToString();
                     row.Cells[1].Value = recentGrid.CurrentRow.Cells[1].Value;
                     recentGrid.Rows.RemoveAt(oldID);
+                    AppSettings.Default.RecentList.RemoveAt(oldID);
                     recentGrid.Rows.Insert(0, row);
                 }
         }

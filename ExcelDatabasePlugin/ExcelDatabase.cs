@@ -2,24 +2,29 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Windows.Forms;
 using ExcelDataReader;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using ExtensibilityInterface;
+using System.ComponentModel.Composition;
 
-namespace Stazis
+namespace ExcelDatabasePlugin
 {
-    class ExcelDatabase : IDatabase
+    [Export(typeof(IExtensibility))]
+    public class ExcelDatabase : IExtensibility
     {
-        public DataSet DatabaseSet { get; private set; }
-        public List<string> NamesOfTables { get; private set; }
-        public int SelectedTableIndex { get; private set; }
         public string DatabasePath { get; set; }
-        List<string> IDatabase.NamesOfTables { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        DataSet IDatabase.DatabaseSet { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        int IDatabase.SelectedTableIndex { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public DataTable CurrentDataTable { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public IList<string> NamesOfTables { get; set; }
+        public DataSet DatabaseSet { get; set; }
+        public int SelectedTableIndex { get; set; }
+        public DataTable CurrentDataTable
+        {
+            get
+            {
+                return DatabaseSet.Tables[SelectedTableIndex];
+            }
+        }
 
         public ExcelDatabase() { }
 
@@ -42,7 +47,6 @@ namespace Stazis
             {
                 NamesOfTables.Add(table.TableName);
             }
-            SelectedTableIndex = 0;
         }
 
         public string GetTypeNameOfDatabaseFile()
@@ -53,11 +57,6 @@ namespace Stazis
         #region IChangebleDatabase support
         public int ChangeRecords(int Column, IList<string> InputElements, string OutputElement)
         {
-            if (! DataOperations.FileIsAvailable(DatabasePath))
-            {
-                MessageBox.Show("Закройте файл в другой программе и повторите попытку", "Файл открыт в другой программе");
-                return 0;
-            }
             int Proceed = 0;
             if (OutputElement == "<пустое значение>")
                 OutputElement = string.Empty;
@@ -95,6 +94,7 @@ namespace Stazis
             }
             return Proceed;
         }
+        #endregion
 
         public void AddRecord(DataRow Record)
         {
@@ -115,6 +115,10 @@ namespace Stazis
         {
             throw new NotImplementedException();
         }
-        #endregion
+
+        public IList<string> GetDatabaseFileExtension()
+        {
+            return new List<string> { ".xls", ".xlsx" };
+        }
     }
 }

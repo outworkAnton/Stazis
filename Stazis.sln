@@ -5,6 +5,18 @@ VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stazis", "Stazis.csproj", "{A9B452FA-6268-4A0A-B252-986415E43F41}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtensibilityInterface", "IExtensibility\ExtensibilityInterface.csproj", "{DA66B507-7CC1-4C5B-A87F-6AB174A7D10D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseFactoryCore", "DatabaseFactoryCore\DatabaseFactoryCore.csproj", "{BEB090CA-ADE1-4AF3-ADDB-0882558EC3A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelDatabasePlugin", "ExcelDatabasePlugin\ExcelDatabasePlugin.csproj", "{ABD1BA72-C253-4790-8166-9086525FC537}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteDatabasePlugin", "SQLiteDatabasePlugin\SQLiteDatabasePlugin.csproj", "{C2E38B0A-A607-4468-85CC-EB89369E8502}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVDatabasePlugin", "CSVDatabasePlugin\CSVDatabasePlugin.csproj", "{E72B476F-4981-42A3-AC3B-C88EF6169C4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataOperationsModule", "DataOperationsModule\DataOperationsModule.csproj", "{30514DA1-26A5-4493-853D-A4FFA40050AC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +26,30 @@ Global
 		{A9B452FA-6268-4A0A-B252-986415E43F41}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{A9B452FA-6268-4A0A-B252-986415E43F41}.Debug|Any CPU.Build.0 = Debug|x86
 		{A9B452FA-6268-4A0A-B252-986415E43F41}.Release|Any CPU.ActiveCfg = Release|x86
+		{DA66B507-7CC1-4C5B-A87F-6AB174A7D10D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA66B507-7CC1-4C5B-A87F-6AB174A7D10D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA66B507-7CC1-4C5B-A87F-6AB174A7D10D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA66B507-7CC1-4C5B-A87F-6AB174A7D10D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEB090CA-ADE1-4AF3-ADDB-0882558EC3A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEB090CA-ADE1-4AF3-ADDB-0882558EC3A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEB090CA-ADE1-4AF3-ADDB-0882558EC3A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEB090CA-ADE1-4AF3-ADDB-0882558EC3A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABD1BA72-C253-4790-8166-9086525FC537}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABD1BA72-C253-4790-8166-9086525FC537}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABD1BA72-C253-4790-8166-9086525FC537}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABD1BA72-C253-4790-8166-9086525FC537}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2E38B0A-A607-4468-85CC-EB89369E8502}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2E38B0A-A607-4468-85CC-EB89369E8502}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2E38B0A-A607-4468-85CC-EB89369E8502}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2E38B0A-A607-4468-85CC-EB89369E8502}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E72B476F-4981-42A3-AC3B-C88EF6169C4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E72B476F-4981-42A3-AC3B-C88EF6169C4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E72B476F-4981-42A3-AC3B-C88EF6169C4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E72B476F-4981-42A3-AC3B-C88EF6169C4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30514DA1-26A5-4493-853D-A4FFA40050AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30514DA1-26A5-4493-853D-A4FFA40050AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30514DA1-26A5-4493-853D-A4FFA40050AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30514DA1-26A5-4493-853D-A4FFA40050AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

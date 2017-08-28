@@ -234,24 +234,18 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>AppSettings.settings</DependentUpon>
     </Compile>
-    <Compile Include="CSVDatabase.cs" />
-    <Compile Include="DatabaseFabric.cs" />
-    <Compile Include="DataOperationsTesting.cs" />
     <Compile Include="DiagramForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DiagramForm.Designer.cs">
       <DependentUpon>DiagramForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ExcelDatabase.cs" />
-    <Compile Include="IDatabase.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DataOperations.cs" />
     <Compile Include="Multilevels.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -264,7 +258,6 @@
     <Compile Include="Replacer.Designer.cs">
       <DependentUpon>Replacer.cs</DependentUpon>
     </Compile>
-    <Compile Include="SQLiteDatabase.cs" />
     <Compile Include="Uniques.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -359,44 +352,58 @@
   <ItemGroup>
     <PublishFile Include="LogManager">
       <Visible>False</Visible>
-      <PublishState>Prerequisite</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Prerequisite</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="NPOI.OpenXmlFormats">
       <Visible>False</Visible>
-      <PublishState>Prerequisite</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Prerequisite</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="SettingsTools">
       <Visible>False</Visible>
-      <PublishState>Prerequisite</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Prerequisite</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
     <PublishFile Include="utilitiessystemmonitoricon.ico">
       <Visible>False</Visible>
-      <PublishState>DataFile</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>DataFile</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>File</FileType>
     </PublishFile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="DatabaseFactoryCore\DatabaseFactoryCore.csproj">
+      <Project>{beb090ca-ade1-4af3-addb-0882558ec3a2}</Project>
+      <Name>DatabaseFactoryCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="DataOperationsModule\DataOperationsModule.csproj">
+      <Project>{30514da1-26a5-4493-853d-a4ffa40050ac}</Project>
+      <Name>DataOperationsModule</Name>
+    </ProjectReference>
+    <ProjectReference Include="IExtensibility\ExtensibilityInterface.csproj">
+      <Project>{da66b507-7cc1-4c5b-a87f-6ab174a7d10d}</Project>
+      <Name>ExtensibilityInterface</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\System.Data.SQLite.Core.1.0.105.2\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('packages\System.Data.SQLite.Core.1.0.105.2\build\net46\System.Data.SQLite.Core.targets')" />
