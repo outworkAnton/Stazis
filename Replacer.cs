@@ -26,7 +26,7 @@ namespace Stazis
 				if (MessageBox.Show("Вы действительно хотите заменить элементы на пустое значение?", "Поле элемента замены пустое!", MessageBoxButtons.YesNo) == DialogResult.No)
 					return;
 	            progressBar1.Visible = true;
-				int changesCount = DataOperations.ChangeRecords(mainForm.db, Col, checkedListBox1.CheckedItems.OfType<string>().ToList(), comboBox1.Text);
+				int changesCount = DataOperations.ChangeRecords(mainForm.Db, Col, checkedListBox1.CheckedItems.OfType<string>().ToList(), comboBox1.Text);
 				//if (checkBox1.Checked) (mainForm.db as IDatabase).ChangeRecords(Col, checkedListBox1.CheckedItems.OfType<string>().ToList(), comboBox1.Text);
 				progressBar1.Visible = false;
 				MessageBox.Show(string.Format("Операция успешно завершена\nВыполнено замен: {0}", changesCount));
@@ -41,7 +41,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
+            	LogManager.Log.AddToLog(AppDomain.CurrentDomain.BaseDirectory, exc);
             }
         }
 
@@ -58,7 +58,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
+            	LogManager.Log.AddToLog(AppDomain.CurrentDomain.BaseDirectory, exc);
             }
         }
 
@@ -105,7 +105,7 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(mainForm.AppDir, exc);
+				LogManager.Log.AddToLog(AppDomain.CurrentDomain.BaseDirectory, exc);
 			}
         }
 
@@ -120,7 +120,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
+            	LogManager.Log.AddToLog(AppDomain.CurrentDomain.BaseDirectory, exc);
             }
         }
 
@@ -135,7 +135,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
+            	LogManager.Log.AddToLog(AppDomain.CurrentDomain.BaseDirectory, exc);
             }
         }
 
@@ -150,7 +150,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
+            	LogManager.Log.AddToLog(AppDomain.CurrentDomain.BaseDirectory, exc);
             }
         }
 
@@ -165,7 +165,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
+            	LogManager.Log.AddToLog(AppDomain.CurrentDomain.BaseDirectory, exc);
             }
         }
 
@@ -199,7 +199,7 @@ namespace Stazis
             catch (Exception exc)
             {
 				MessageBox.Show(exc.Message);
-                LogManager.Log.AddToLog(mainForm.AppDir, exc);
+                LogManager.Log.AddToLog(AppDomain.CurrentDomain.BaseDirectory, exc);
             }
         }
 
@@ -222,7 +222,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(mainForm.AppDir, exc);
+            	LogManager.Log.AddToLog(AppDomain.CurrentDomain.BaseDirectory, exc);
             }
         }
     }

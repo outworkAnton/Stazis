@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
-using System.Linq;
-using System.Data;
 using DataOperationsModule;
+using LogManager;
 
 namespace Stazis
 {
@@ -46,7 +46,7 @@ namespace Stazis
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(AppDir, exc);
+            	Log.AddToLog(AppDir, exc);
             }
         }
 
@@ -56,13 +56,13 @@ namespace Stazis
             {
             	if (dataGridView1.CurrentCell.Value.ToString() == "<пустое значение>") QueryText = string.Empty;
                 else QueryText = dataGridView1.CurrentCell.Value.ToString();
-                DialogResult = System.Windows.Forms.DialogResult.Yes;
+                DialogResult = DialogResult.Yes;
             } 
             catch (Exception exc) 
             {
             	MessageBox.Show(exc.Message);
-            	LogManager.Log.AddToLog(AppDir, exc);
-				DialogResult = System.Windows.Forms.DialogResult.No;
+            	Log.AddToLog(AppDir, exc);
+				DialogResult = DialogResult.No;
             }
         }
 
@@ -93,7 +93,7 @@ namespace Stazis
         	catch (Exception exc) 
         	{
         		MessageBox.Show(exc.Message);
-        		LogManager.Log.AddToLog(AppDir, exc);
+        		Log.AddToLog(AppDir, exc);
 				toolStripStatusLabel1.Text = string.Format("При экспорте данных в файл {0} произошла ошибка", mainForm.saveFileDialog1.FileName);
         	}
         }
@@ -123,7 +123,7 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 //				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				Log.AddToLog(AppDir, exc);
 			}
         }
 		void Uniques_FormClosing(object sender, FormClosingEventArgs e)

@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stazis", "Stazis.csproj", "{A9B452FA-6268-4A0A-B252-986415E43F41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtensibilityInterface", "IExtensibility\ExtensibilityInterface.csproj", "{DA66B507-7CC1-4C5B-A87F-6AB174A7D10D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StazisExtensibilityInterface", "IExtensibility\StazisExtensibilityInterface.csproj", "{DA66B507-7CC1-4C5B-A87F-6AB174A7D10D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseFactoryCore", "DatabaseFactoryCore\DatabaseFactoryCore.csproj", "{BEB090CA-ADE1-4AF3-ADDB-0882558EC3A2}"
 EndProject

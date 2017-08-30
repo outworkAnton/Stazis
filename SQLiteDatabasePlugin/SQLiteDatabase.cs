@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using ExtensibilityInterface;
+using StazisExtensibilityInterface;
 using System.ComponentModel.Composition;
 
 namespace SQLiteDatabasePlugin
@@ -14,15 +14,13 @@ namespace SQLiteDatabasePlugin
         public DataSet DatabaseSet { get; set; }
         public string DatabasePath { get; set; }
         public int SelectedTableIndex { get; set; }
-        public DataTable CurrentDataTable
-        {
-            get
-            {
-                return DatabaseSet.Tables[SelectedTableIndex];
-            }
-        }
+        public DataTable CurrentDataTable => DatabaseSet.Tables[SelectedTableIndex];
 
-        public SQLiteDatabase() { }
+        public SQLiteDatabase()
+        {
+            NamesOfTables = new List<string>();
+            DatabaseSet = new DataSet();
+        }
 
         public string GetTypeNameOfDatabaseFile()
         {
@@ -34,13 +32,11 @@ namespace SQLiteDatabasePlugin
             DatabasePath = pathOfFile;
             using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-
-                SQLiteFactory factory = (SQLiteFactory)System.Data.Common.DbProviderFactories.GetFactory("System.Data.SQLite");
-                SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection();
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter();
+                var connection = (SQLiteConnection)SQLiteFactory.Instance.CreateConnection();
+                var adapter = new SQLiteDataAdapter();
                 connection.ConnectionString = "Data Source = " + DatabasePath;
                 connection.Open();
-                SQLiteDataAdapter tmpadapter = new SQLiteDataAdapter("SELECT name FROM sqlite_master WHERE type = 'table'", connection);
+                var tmpadapter = new SQLiteDataAdapter("SELECT name FROM sqlite_master WHERE type = 'table'", connection);
                 DataTable tmpDT = new DataTable();
                 tmpadapter.Fill(tmpDT);
                 foreach (DataRow row in tmpDT.Rows)

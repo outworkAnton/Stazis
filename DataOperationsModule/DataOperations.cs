@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using ExtensibilityInterface;
+using StazisExtensibilityInterface;
 
 namespace DataOperationsModule
 {

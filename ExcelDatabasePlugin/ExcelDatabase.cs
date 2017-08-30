@@ -6,7 +6,7 @@ using ExcelDataReader;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using ExtensibilityInterface;
+using StazisExtensibilityInterface;
 using System.ComponentModel.Composition;
 
 namespace ExcelDatabasePlugin
@@ -18,15 +18,12 @@ namespace ExcelDatabasePlugin
         public IList<string> NamesOfTables { get; set; }
         public DataSet DatabaseSet { get; set; }
         public int SelectedTableIndex { get; set; }
-        public DataTable CurrentDataTable
-        {
-            get
-            {
-                return DatabaseSet.Tables[SelectedTableIndex];
-            }
-        }
+        public DataTable CurrentDataTable => DatabaseSet.Tables[SelectedTableIndex];
 
-        public ExcelDatabase() { }
+        public ExcelDatabase()
+        {
+            NamesOfTables = new List<string>();
+        }
 
         public void ConnectToDatabase(string pathOfFile)
         {
@@ -42,7 +39,6 @@ namespace ExcelDatabasePlugin
                 }
             };
             DatabaseSet = excelReader.AsDataSet(excelDataSetConfiguration);
-            NamesOfTables = new List<string>();
             foreach (DataTable table in DatabaseSet.Tables)
             {
                 NamesOfTables.Add(table.TableName);

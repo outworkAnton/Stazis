@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 
-namespace ExtensibilityInterface
+namespace StazisExtensibilityInterface
 {
     public interface IExtensibility
     {

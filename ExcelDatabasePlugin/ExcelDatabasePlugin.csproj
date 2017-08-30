@@ -69,9 +69,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IExtensibility\ExtensibilityInterface.csproj">
+    <ProjectReference Include="..\IExtensibility\StazisExtensibilityInterface.csproj">
       <Project>{da66b507-7cc1-4c5b-a87f-6ab174a7d10d}</Project>
-      <Name>ExtensibilityInterface</Name>
+      <Name>StazisExtensibilityInterface</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

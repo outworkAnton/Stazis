@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-using ExtensibilityInterface;
+using StazisExtensibilityInterface;
 using DatabaseFactoryCore;
 using DataOperationsModule;
 
@@ -19,14 +19,15 @@ namespace Stazis
 {
 	public partial class MainForm : Form
 	{
-        public IExtensibility db;
+        readonly DatabaseFactory _stazisDatabaseFactory = new DatabaseFactory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"));
+        public IExtensibility Db;
 		
-		public string AppDir = Application.StartupPath;
-		public ValueFilters filtersForm;
-		public RecentAndDirectives recentForm;
-		public Replacer replacerForm;
-		public Uniques uniquesForm;
-		string AppVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+		string _appDir = Application.StartupPath;
+		ValueFilters _filtersForm;
+		RecentAndDirectives _recentForm;
+		Replacer _replacerForm;
+		Uniques _uniquesForm;
+		string _appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
 		public MainForm()
 		{
@@ -37,17 +38,19 @@ namespace Stazis
 		{
 			try 
 			{
-				recentForm = new RecentAndDirectives();
-				recentForm.ShowDialog();
-				if (recentForm.DialogResult == DialogResult.OK)
+                AppSettings.Default.Upgrade();
+			    AppSettings.Default.SupportedDatabaseTypes = string.Join("|", _stazisDatabaseFactory.GetSupportedFormats());
+				_recentForm = new RecentAndDirectives();
+				_recentForm.ShowDialog();
+				if (_recentForm.DialogResult == DialogResult.OK)
 				{
-					if (!string.IsNullOrWhiteSpace(recentForm.PathOfDB))
+					if (!string.IsNullOrWhiteSpace(_recentForm.PathOfDb))
 					{
-						Stopwatch perfWatch = new Stopwatch();
+						var perfWatch = new Stopwatch();
 						perfWatch.Start();
                         Task databaseLoad = Task.Factory.StartNew(() =>
                         {
-                            db = new DatabaseFactory().CreateDataBaseInstance(recentForm.PathOfDB);
+                            Db = _stazisDatabaseFactory.CreateDataBaseInstance(_recentForm.PathOfDb);
                         });
                         while (!databaseLoad.IsCompleted)
                         {
@@ -57,22 +60,22 @@ namespace Stazis
                         }
                         toolStripStatusLabel2.Text = string.Empty;
                         toolStripProgressBar1.Visible = false;
-                        GetTablesList(db);
-                        db.SelectedTableIndex = 0;
-						MaindataGrid.DataSource = db.CurrentDataTable;
+                        GetTablesList(Db);
+                        Db.SelectedTableIndex = 0;
+						MaindataGrid.DataSource = Db.CurrentDataTable;
 						//typesColumnList = GetTypesOfDataTableColumns();
 						CheckViewOfGrid();
 						FormatDataGrid();
-						uniquesForm = new Uniques();
-						filtersForm = new ValueFilters();
-						replacerForm = new Replacer(this);
+						_uniquesForm = new Uniques();
+						_filtersForm = new ValueFilters();
+						_replacerForm = new Replacer(this);
 						TimeSpan span = perfWatch.Elapsed;
-						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(db.DatabasePath), db.GetTypeNameOfDatabaseFile());
+						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(Db.DatabasePath), Db.GetTypeNameOfDatabaseFile());
 						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 					}
 					else
 					{
-						recentForm.Dispose();
+						_recentForm.Dispose();
 					}
 				}
 				MaindataGrid.CurrentCell = null;
@@ -81,14 +84,14 @@ namespace Stazis
 			{
 				toolStripProgressBar1.Visible = false;
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
 		List<Type> GetTypesOfDataTableColumns()
 		{
 			List<Type> tmpList = new List<Type>();
-			foreach (DataColumn dc in db.CurrentDataTable.Columns)
+			foreach (DataColumn dc in Db.CurrentDataTable.Columns)
 				tmpList.Add(dc.DataType);
 			return tmpList;
 		}
@@ -175,7 +178,7 @@ namespace Stazis
 							break;
 					}
 					MaindataGrid.Columns[e.ColumnIndex].Selected = true;
-					if (db is IExtensibility)
+					if (Db is IExtensibility)
 						пакетныйЗаменительToolStripMenuItem.Enabled = true;
 					else 
 						пакетныйЗаменительToolStripMenuItem.Enabled = false;
@@ -184,7 +187,7 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -199,11 +202,11 @@ namespace Stazis
 					perfWatch.Start();
 					toolStripProgressBar1.Visible = true;
 					int columnIndex = MaindataGrid.CurrentCell.ColumnIndex;;
-					string CellValue = MaindataGrid.CurrentCell.Value.ToString();
-					DataTable newTable = db.CurrentDataTable.Clone();
+					string cellValue = MaindataGrid.CurrentCell.Value.ToString();
+					DataTable newTable = Db.CurrentDataTable.Clone();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-					    newTable = DateTime.TryParse(CellValue, out tmpDate) ? DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, columnIndex, tmpDate, tmpDate) : DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, columnIndex, CellValue);							
+					    newTable = DateTime.TryParse(cellValue, out tmpDate) ? DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, columnIndex, tmpDate, tmpDate) : DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, columnIndex, cellValue);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
@@ -212,9 +215,9 @@ namespace Stazis
 					}
 					if (AppSettings.Default.SaveSearchResult)
 					{
-						db.CurrentDataTable.Clear();
-						db.CurrentDataTable.Merge(newTable);
-						MaindataGrid.DataSource = db.CurrentDataTable;
+						Db.CurrentDataTable.Clear();
+						Db.CurrentDataTable.Merge(newTable);
+						MaindataGrid.DataSource = Db.CurrentDataTable;
 					}
 					else MaindataGrid.DataSource = newTable;
 					FormatDataGrid();
@@ -226,7 +229,7 @@ namespace Stazis
 					                                           span.Seconds, 
 					                                           span.Milliseconds, 
 					                                           MaindataGrid.Rows.Count, 
-					                                           (DateTime.TryParse(CellValue, out tmpDate)) ? tmpDate.ToShortDateString() : CellValue,
+					                                           (DateTime.TryParse(cellValue, out tmpDate)) ? tmpDate.ToShortDateString() : cellValue,
 					                                           MaindataGrid.Columns[columnIndex].HeaderText);
 					MaindataGrid.CurrentCell = null;
 				}
@@ -235,7 +238,7 @@ namespace Stazis
 			{
 				toolStripProgressBar1.Visible = false;
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -244,14 +247,14 @@ namespace Stazis
 			try 
 			{
 				if (датаToolStripMenuItem.Checked) {
-					DateTime.TryParse(e.CellValue1.ToString(), out DateTime FirstDate);
-					DateTime.TryParse(e.CellValue2.ToString(), out DateTime SecondDate);
-					e.SortResult = DateTime.Compare(FirstDate, SecondDate);
+					DateTime.TryParse(e.CellValue1.ToString(), out DateTime firstDate);
+					DateTime.TryParse(e.CellValue2.ToString(), out DateTime secondDate);
+					e.SortResult = DateTime.Compare(firstDate, secondDate);
 				}
 				if (числоToolStripMenuItem.Checked) {
-					int.TryParse(e.CellValue1.ToString(), out int FirstNumber);
-					int.TryParse(e.CellValue2.ToString(), out int SecondNumber);
-					e.SortResult = String.Compare(FirstNumber.ToString("00000000000"), SecondNumber.ToString("00000000000"), StringComparison.Ordinal);
+					int.TryParse(e.CellValue1.ToString(), out int firstNumber);
+					int.TryParse(e.CellValue2.ToString(), out int secondNumber);
+					e.SortResult = String.Compare(firstNumber.ToString("00000000000"), secondNumber.ToString("00000000000"), StringComparison.Ordinal);
 				}
 				if (текстпоУмолчаниюToolStripMenuItem.Checked)
 					e.SortResult = String.Compare(e.CellValue1.ToString(), e.CellValue2.ToString(), StringComparison.Ordinal);
@@ -260,20 +263,20 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
 		void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (tabControl1.SelectedIndex == -1) return;
-			int SheetIndex = tabControl1.SelectedIndex;
+			int sheetIndex = tabControl1.SelectedIndex;
 			try
 			{
 				Stopwatch perfWatch = new Stopwatch();
 				perfWatch.Start();
-				db.SelectedTableIndex = SheetIndex;
-				MaindataGrid.DataSource = db.CurrentDataTable;
+				Db.SelectedTableIndex = sheetIndex;
+				MaindataGrid.DataSource = Db.CurrentDataTable;
 				FormatDataGrid();
 				TimeSpan span = perfWatch.Elapsed;
 				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
@@ -282,7 +285,7 @@ namespace Stazis
 			catch (Exception exc)
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -295,7 +298,7 @@ namespace Stazis
 				toolStripProgressBar1.Visible = true;
 				Task taskInThread = Task.Factory.StartNew(() =>
 				{
-					db.Reload();
+					Db.Reload();
 				});
 				while (!taskInThread.IsCompleted)
 				{
@@ -303,8 +306,8 @@ namespace Stazis
 					Application.DoEvents();
 				}
 				toolStripStatusLabel2.Text = string.Empty;
-				GetTablesList(db);
-				MaindataGrid.DataSource = db.CurrentDataTable;
+				GetTablesList(Db);
+				MaindataGrid.DataSource = Db.CurrentDataTable;
 				CheckViewOfGrid();
 				FormatDataGrid();
 				toolStripProgressBar1.Visible = false;
@@ -315,7 +318,7 @@ namespace Stazis
 			{
 				toolStripProgressBar1.Visible = false;
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -328,7 +331,7 @@ namespace Stazis
 				текстпоУмолчаниюToolStripMenuItem.Checked = false;
 				Stopwatch perfWatch = new Stopwatch();
 				perfWatch.Start();
-				DataOperations.ChangeColumnType(MaindataGrid,db.CurrentDataTable, MaindataGrid.CurrentCell.ColumnIndex, typeof(DateTime));
+				DataOperations.ChangeColumnType(MaindataGrid,Db.CurrentDataTable, MaindataGrid.CurrentCell.ColumnIndex, typeof(DateTime));
 				TimeSpan span = perfWatch.Elapsed;
 				toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
 				contextMenuStrip1.Hide();
@@ -338,7 +341,7 @@ namespace Stazis
 			{
 				contextMenuStrip1.Hide();
 				MessageBox.Show("Невозможно выполнить преобразование типа столбца");
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -347,27 +350,27 @@ namespace Stazis
 			try 
 			{
 				числоToolStripMenuItem_Click(this, e);
-				filtersForm.FilterMode = DataOperations.FilterMode.Integer;
-				string columnName = filtersForm.ColName = MaindataGrid.Columns[MaindataGrid.CurrentCell.ColumnIndex].HeaderText;
-				filtersForm.AppDir = AppDir;
+				_filtersForm.FilterMode = DataOperations.FilterMode.Integer;
+				string columnName = _filtersForm.ColName = MaindataGrid.Columns[MaindataGrid.CurrentCell.ColumnIndex].HeaderText;
+				_filtersForm.AppDir = _appDir;
 				List<double> list = new List<double>();
-				var query = from order in db.CurrentDataTable.AsEnumerable()
+				var query = from order in Db.CurrentDataTable.AsEnumerable()
 					select order.Field<double>(columnName);
 				list.AddRange(query);
-				filtersForm.minDoubleRange = list.Min();
-				filtersForm.maxDoubleRange = list.Max();
-				filtersForm.ShowDialog();
-				if (filtersForm.DialogResult == DialogResult.Yes)
+				_filtersForm.minDoubleRange = list.Min();
+				_filtersForm.maxDoubleRange = list.Max();
+				_filtersForm.ShowDialog();
+				if (_filtersForm.DialogResult == DialogResult.Yes)
 				{
 					Stopwatch perfWatch = new Stopwatch();
 					perfWatch.Start();
-					double SearchInteger = filtersForm.intValue;
-					DataOperations.SearchIntMode Mode = filtersForm.intMode;
-					int ColumnIndex = MaindataGrid.CurrentCell.ColumnIndex;
-					DataTable newTable = db.CurrentDataTable.Clone();
+					double searchInteger = _filtersForm.intValue;
+					DataOperations.SearchIntMode mode = _filtersForm.intMode;
+					int columnIndex = MaindataGrid.CurrentCell.ColumnIndex;
+					DataTable newTable = Db.CurrentDataTable.Clone();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-						newTable = DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, ColumnIndex, SearchInteger, Mode);							
+						newTable = DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, columnIndex, searchInteger, mode);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
@@ -376,35 +379,35 @@ namespace Stazis
 					}
 					if (AppSettings.Default.SaveSearchResult)
 					{
-						db.CurrentDataTable.Clear();
-						db.CurrentDataTable.Merge(newTable);
-						MaindataGrid.DataSource = db.CurrentDataTable;
+						Db.CurrentDataTable.Clear();
+						Db.CurrentDataTable.Merge(newTable);
+						MaindataGrid.DataSource = Db.CurrentDataTable;
 					}
 					else MaindataGrid.DataSource = newTable;
 					FormatDataGrid();
-					string SearchOption = string.Empty;
-					switch (Mode)
+					string searchOption = string.Empty;
+					switch (mode)
 					{
 						case DataOperations.SearchIntMode.EqualTo:
-							SearchOption = "равных";
+							searchOption = "равных";
 							break;
 						case DataOperations.SearchIntMode.LargerThen:
-							SearchOption = "больших";
+							searchOption = "больших";
 							break;
 						case DataOperations.SearchIntMode.SmallerThen:
-							SearchOption = "меньших";
+							searchOption = "меньших";
 							break;
 					}
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки чисел {6} '{4}' в столбце <{5}> : {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count, SearchInteger, columnName, SearchOption);
+					toolStripStatusLabel1.Text = string.Format("Результаты выборки чисел {6} '{4}' в столбце <{5}> : {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count, searchInteger, columnName, searchOption);
 					MaindataGrid.CurrentCell = null;
 				}
 			} 
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -413,27 +416,27 @@ namespace Stazis
 			try 
 			{
 				датаToolStripMenuItem_Click(this, e);
-				filtersForm.FilterMode = DataOperations.FilterMode.Date;
-				filtersForm.ColName = MaindataGrid.Columns[MaindataGrid.CurrentCell.ColumnIndex].Name;
-				filtersForm.AppDir = AppDir;
+				_filtersForm.FilterMode = DataOperations.FilterMode.Date;
+				_filtersForm.ColName = MaindataGrid.Columns[MaindataGrid.CurrentCell.ColumnIndex].Name;
+				_filtersForm.AppDir = _appDir;
 				List<DateTime> list = new List<DateTime>();
-				var query = from order in db.CurrentDataTable.AsEnumerable()
-					select order.Field<DateTime>(filtersForm.ColName);
+				var query = from order in Db.CurrentDataTable.AsEnumerable()
+					select order.Field<DateTime>(_filtersForm.ColName);
 				list.AddRange(query);
-				filtersForm.minDateRange = list.Min();
-				filtersForm.maxDateRange = list.Max();
-				filtersForm.ShowDialog();
-				if (filtersForm.DialogResult == DialogResult.Yes)
+				_filtersForm.minDateRange = list.Min();
+				_filtersForm.maxDateRange = list.Max();
+				_filtersForm.ShowDialog();
+				if (_filtersForm.DialogResult == DialogResult.Yes)
 				{
 					Stopwatch perfWatch = new Stopwatch();
 					perfWatch.Start();
-					DateTime Start = filtersForm.StartDate;
-					DateTime End = filtersForm.EndDate;
-					int ColumnIndex = MaindataGrid.CurrentCell.ColumnIndex;
-					DataTable newTable = db.CurrentDataTable.Clone();
+					DateTime start = _filtersForm.StartDate;
+					DateTime end = _filtersForm.EndDate;
+					int columnIndex = MaindataGrid.CurrentCell.ColumnIndex;
+					DataTable newTable = Db.CurrentDataTable.Clone();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-						newTable = DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, ColumnIndex, Start, End);							
+						newTable = DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, columnIndex, start, end);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
@@ -442,22 +445,22 @@ namespace Stazis
 					}
 					if (AppSettings.Default.SaveSearchResult)
 					{
-						db.CurrentDataTable.Clear();
-						db.CurrentDataTable.Merge(newTable);
-						MaindataGrid.DataSource = db.CurrentDataTable;
+						Db.CurrentDataTable.Clear();
+						Db.CurrentDataTable.Merge(newTable);
+						MaindataGrid.DataSource = Db.CurrentDataTable;
 					}
 					else MaindataGrid.DataSource = newTable;
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки по диапазону дат (с {0} по {1}) : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", Start, End, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel1.Text = string.Format("Результаты выборки по диапазону дат (с {0} по {1}) : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", start, end, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
 					MaindataGrid.CurrentCell = null;
 				}
 			} 
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -467,7 +470,7 @@ namespace Stazis
 			int colIndex = MaindataGrid.CurrentCell.ColumnIndex;
 			try
 			{
-				var lst = (db.CurrentDataTable.AsEnumerable().Select(x =>
+				var lst = (Db.CurrentDataTable.AsEnumerable().Select(x =>
 				{
 					if (!string.IsNullOrWhiteSpace(x[colIndex].ToString())) return x[colIndex].ToString();
 					else return "<пустое значение>";
@@ -478,19 +481,19 @@ namespace Stazis
 				//	if (!string.IsNullOrWhiteSpace(item)) list.Add(item);
 				//	else list.Add("<пустое значение>");
 				//}
-				replacerForm.checkedListBox1.Items.Clear();
-				replacerForm.checkedListBox1.Items.AddRange(lst);
+				_replacerForm.checkedListBox1.Items.Clear();
+				_replacerForm.checkedListBox1.Items.AddRange(lst);
 			}
 			catch (Exception exc)
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 				return;
 			}
-			replacerForm.Col = colIndex;
-			replacerForm.ColName = MaindataGrid.Columns[colIndex].Name;
-			replacerForm.checkBox1.Enabled = (db is IExtensibility);
-			replacerForm.ShowDialog();
+			_replacerForm.Col = colIndex;
+			_replacerForm.ColName = MaindataGrid.Columns[colIndex].Name;
+			_replacerForm.checkBox1.Enabled = (Db is IExtensibility);
+			_replacerForm.ShowDialog();
 		}
 
 		void поискToolStripMenuItem_Click(object sender, EventArgs e)
@@ -498,22 +501,22 @@ namespace Stazis
 			try 
 			{
 				текстпоУмолчаниюToolStripMenuItem_Click(this, e);
-				filtersForm.FilterMode = DataOperations.FilterMode.Text;
-				string columnName = filtersForm.ColName = MaindataGrid.Columns[MaindataGrid.CurrentCell.ColumnIndex].HeaderText;
-				filtersForm.AppDir = AppDir;
-				filtersForm.ShowDialog();
-				if (filtersForm.DialogResult == DialogResult.Yes)
+				_filtersForm.FilterMode = DataOperations.FilterMode.Text;
+				string columnName = _filtersForm.ColName = MaindataGrid.Columns[MaindataGrid.CurrentCell.ColumnIndex].HeaderText;
+				_filtersForm.AppDir = _appDir;
+				_filtersForm.ShowDialog();
+				if (_filtersForm.DialogResult == DialogResult.Yes)
 				{
 					Stopwatch perfWatch = new Stopwatch();
 					perfWatch.Start();
-					string SearchText = filtersForm.textValue;
-					DataOperations.SearchTextMode Mode = filtersForm.txtMode;
-					int ColumnIndex = MaindataGrid.CurrentCell.ColumnIndex;
+					string searchText = _filtersForm.textValue;
+					DataOperations.SearchTextMode mode = _filtersForm.txtMode;
+					int columnIndex = MaindataGrid.CurrentCell.ColumnIndex;
 					DataTable tmpDataTable = (MaindataGrid.DataSource as DataTable).Copy();
 					DataTable newTable = new DataTable();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-						newTable = DataOperations.QueryProcess(tmpDataTable, ColumnIndex, SearchText, Mode);							
+						newTable = DataOperations.QueryProcess(tmpDataTable, columnIndex, searchText, mode);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
@@ -524,14 +527,14 @@ namespace Stazis
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Количество записей удовлетворяющих поисковому запросу '{0}' в столбце <{1}> : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", SearchText, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel1.Text = string.Format("Количество записей удовлетворяющих поисковому запросу '{0}' в столбце <{1}> : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", searchText, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
 					MaindataGrid.CurrentCell = null;
 				}
 			} 
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -607,12 +610,12 @@ namespace Stazis
 			{
 				int col = MaindataGrid.CurrentCell.ColumnIndex;
 				string columnName = MaindataGrid.Columns[col].HeaderText;
-				uniquesForm.colName = columnName;
+				_uniquesForm.colName = columnName;
 				Stopwatch perfUniq = new Stopwatch();
 				perfUniq.Start();
 				Task loadUniquesTask = Task.Factory.StartNew(() =>
 				{
-					DataOperations.LoadUniques(MaindataGrid.DataSource as DataTable, col, uniquesForm.dataGridView1);
+					DataOperations.LoadUniques(MaindataGrid.DataSource as DataTable, col, _uniquesForm.dataGridView1);
 				});
 				while (!loadUniquesTask.IsCompleted)
 				{
@@ -623,17 +626,17 @@ namespace Stazis
 				toolStripProgressBar1.Visible = false;
 				TimeSpan spanUniq = perfUniq.Elapsed;
 				toolStripStatusLabel2.Text = string.Format("Время вычисления составило: {0} мин {1} сек {2} мсек",  spanUniq.Minutes, spanUniq.Seconds, spanUniq.Milliseconds);
-				uniquesForm.ShowDialog(this);
-				if (uniquesForm.DialogResult == DialogResult.Yes)
+				_uniquesForm.ShowDialog(this);
+				if (_uniquesForm.DialogResult == DialogResult.Yes)
 				{
 					toolStripStatusLabel2.Text = string.Empty;
 					Stopwatch perfWatch = new Stopwatch();
 					perfWatch.Start();
-					string CellValue = uniquesForm.QueryText;
-					DataTable newTable = db.CurrentDataTable.Clone();
+					string cellValue = _uniquesForm.QueryText;
+					DataTable newTable = Db.CurrentDataTable.Clone();
 					Task taskInThread = Task.Factory.StartNew( () => 
 					{
-						newTable = DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, col, CellValue);							
+						newTable = DataOperations.QueryProcess(MaindataGrid.DataSource as DataTable, col, cellValue);							
 					});
 					while (!taskInThread.IsCompleted)
 					{
@@ -642,15 +645,15 @@ namespace Stazis
 					}
 					if (AppSettings.Default.SaveSearchResult)
 					{
-						db.CurrentDataTable.Clear();
-						db.CurrentDataTable.Merge(newTable);
-						MaindataGrid.DataSource = db.CurrentDataTable;
+						Db.CurrentDataTable.Clear();
+						Db.CurrentDataTable.Merge(newTable);
+						MaindataGrid.DataSource = Db.CurrentDataTable;
 					}
 					else MaindataGrid.DataSource = newTable;
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки по запросу '{0}' в столбце <{1}> : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", CellValue, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel1.Text = string.Format("Результаты выборки по запросу '{0}' в столбце <{1}> : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", cellValue, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
 					MaindataGrid.CurrentCell = null;
 				}
 			}
@@ -658,7 +661,7 @@ namespace Stazis
 			{
 				toolStripProgressBar1.Visible = false;
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -682,7 +685,7 @@ namespace Stazis
 			{
 				contextMenuStrip1.Hide();
 				MessageBox.Show("Невозможно выполнить преобразование типа столбца");
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -706,7 +709,7 @@ namespace Stazis
 			{
 				contextMenuStrip1.Hide();
 				MessageBox.Show("Невозможно выполнить преобразование типа столбца");
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -728,7 +731,7 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -750,7 +753,7 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -772,7 +775,7 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -794,7 +797,7 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 
@@ -835,7 +838,7 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 		void сохранятьРезультатыПоискаПриПереключенииВкладокToolStripMenuItem_Click(object sender, EventArgs e)
@@ -856,7 +859,7 @@ namespace Stazis
 			catch (Exception exc) 
 			{
 				MessageBox.Show(exc.Message);
-				LogManager.Log.AddToLog(AppDir, exc);
+				LogManager.Log.AddToLog(_appDir, exc);
 			}
 		}
 		

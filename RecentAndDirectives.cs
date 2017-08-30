@@ -10,7 +10,7 @@ namespace Stazis
 {
     public partial class RecentAndDirectives : Form
     {
-        public string PathOfDB { get; set; }
+        public string PathOfDb { get; set; }
 
         public RecentAndDirectives()
         {
@@ -19,7 +19,6 @@ namespace Stazis
 
         public void GetRecentList()
         {
-            AppSettings.Default.Upgrade();
             if (AppSettings.Default.RecentList != null)
             {
                 recentGrid.Columns[0].ValueType = typeof(DateTime);
@@ -76,25 +75,22 @@ namespace Stazis
 
         void SelectRecord()
         {
-            if (recentGrid.CurrentRow != null)
-                if (!string.IsNullOrWhiteSpace(recentGrid.CurrentRow.Cells[1].Value.ToString()))
-                {
-                    PathOfDB = recentGrid.CurrentRow.Cells[1].Value.ToString();
-                    int oldID = recentGrid.CurrentRow.Index;
-                    DataGridViewRow row = (DataGridViewRow)recentGrid.CurrentRow.Clone();
-                    row.Cells[0].Value = DateTime.Now.ToString();
-                    row.Cells[1].Value = recentGrid.CurrentRow.Cells[1].Value;
-                    recentGrid.Rows.RemoveAt(oldID);
-                    AppSettings.Default.RecentList.RemoveAt(oldID);
-                    recentGrid.Rows.Insert(0, row);
-                }
+            if (!string.IsNullOrWhiteSpace(recentGrid.CurrentRow?.Cells[1].Value.ToString()))
+            {
+                PathOfDb = recentGrid.CurrentRow.Cells[1].Value.ToString();
+                int oldID = recentGrid.CurrentRow.Index;
+                var row = (DataGridViewRow)recentGrid.CurrentRow.Clone();
+                row.Cells[0].Value = DateTime.Now.ToString();
+                row.Cells[1].Value = recentGrid.CurrentRow.Cells[1].Value;
+                recentGrid.Rows.RemoveAt(oldID);
+                AppSettings.Default.RecentList.RemoveAt(oldID);
+                recentGrid.Rows.Insert(0, row);
+            }
         }
 
         public void NewRecord()
         {
-            var supportedTypes = new string[AppSettings.Default.SupportedImportTypes.Count];
-            AppSettings.Default.SupportedImportTypes.CopyTo(supportedTypes, 0);
-            openFileDialog1.Filter = string.Join("", supportedTypes);
+            openFileDialog1.Filter = AppSettings.Default.SupportedDatabaseTypes;
 			openFileDialog1.FilterIndex = 0;
             openFileDialog1.ShowDialog();
             if (!string.IsNullOrWhiteSpace(openFileDialog1.FileName))
@@ -111,7 +107,7 @@ namespace Stazis
                     recentGrid.Rows.RemoveAt(0);
                     return;
                 }
-                PathOfDB = openFileDialog1.FileName;
+                PathOfDb = openFileDialog1.FileName;
                 DialogResult = DialogResult.OK;
             }
         }

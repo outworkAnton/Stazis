@@ -1,4 +1,4 @@
-﻿using ExtensibilityInterface;
+﻿using StazisExtensibilityInterface;
 using System;
 using System.Data;
 using System.Windows.Forms;
