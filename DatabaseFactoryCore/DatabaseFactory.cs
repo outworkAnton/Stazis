@@ -26,7 +26,7 @@ namespace DatabaseFactoryCore
                 plugin.DatabasePath = filePath;
                 return plugin;
             }
-            throw new Exception($"Plugin for {extensionOfFile} not found");
+            throw new FileNotFoundException($"Plugin for {extensionOfFile} not found");
         }
 
         public IList<string> GetSupportedFormats()
@@ -57,7 +57,7 @@ namespace DatabaseFactoryCore
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Plugins not found. Cannot to load any file types. Message: {ex}");
+                    throw new FileNotFoundException($"Plugins not found. Cannot to load any file types. Message: {ex}");
                 }
             }
         } 

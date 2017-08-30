@@ -15,40 +15,42 @@ namespace CSVDatabasePlugin
         public string DatabasePath { get; set; }
         public IList<string> NamesOfTables { get; set; }
         public int SelectedTableIndex { get; set; }
-        public DataTable CurrentDataTable
-        {
-            get
-            {
-                return DatabaseSet.Tables[SelectedTableIndex];
-            }
-        }
+        public DataTable CurrentDataTable => DatabaseSet.Tables[SelectedTableIndex];
 
         public CSVDatabase() { }
 
-        public void ConnectToDatabase(string pathOfFile)
+        public bool ConnectToDatabase(string filePath)
         {
-            DatabasePath = pathOfFile;
-            using (Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            try
             {
-                NamesOfTables.Add("Imported from CSV file data");
-                DatabaseSet.Tables.Add(GetDataTableFromCSVFile(fs));
+                DatabasePath = filePath;
+                using (Stream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    NamesOfTables.Add("Imported from CSV file data");
+                    DatabaseSet.Tables.Add(GetDataTableFromCSVFile(fs));
+                }
+                return true;
+            }
+            catch (System.Exception)
+            {
+                return false;
             }
         }
 
         DataTable GetDataTableFromCSVFile(Stream fileStream)
         {
-            DataTable csvData = new DataTable();
-            using (TextFieldParser csvReader = new TextFieldParser(fileStream, Encoding.Default))
+            var csvData = new DataTable();
+            using (var csvReader = new TextFieldParser(fileStream, Encoding.Default))
             {
                 csvReader.SetDelimiters(new string[] { ";" });
                 csvReader.HasFieldsEnclosedInQuotes = true;
-                List<string> colFields = new List<string>(csvReader.ReadFields());
+                var colFields = new List<string>(csvReader.ReadFields());
                 foreach (string column in colFields)
                 {
-                    DataColumn dataColumn = new DataColumn(column);
+                    var dataColumn = new DataColumn(column);
                     dataColumn.AllowDBNull = true;
                     if (csvData.Columns.Contains(column))
-                        dataColumn.ColumnName = string.Format("Столбец {0} ({1})", csvData.Columns.Count, dataColumn.ColumnName);
+                        dataColumn.ColumnName = $"Столбец {csvData.Columns.Count} ({dataColumn.ColumnName})";
                     if (string.IsNullOrWhiteSpace(column))
                         dataColumn.ColumnName = "Столбец " + csvData.Columns.Count;
                     csvData.Columns.Add(dataColumn);
@@ -72,22 +74,22 @@ namespace CSVDatabasePlugin
             return "Файл CSV";
         }
 
-        public void Reload()
+        public bool Reload()
         {
             throw new System.NotImplementedException();
         }
 
-        public void DisconnectFromDatabase()
+        public bool DisconnectFromDatabase()
         {
             throw new System.NotImplementedException();
         }
 
-        public void AddRecord(DataRow Record)
+        public bool AddRecord(IList<string> valuesOfRecord)
         {
             throw new System.NotImplementedException();
         }
 
-        public int ChangeRecordsInColumn(int Column, IList<string> InputElements, string OutputElement)
+        public int ChangeRecordsInColumn(int Column, IList<string> valuesToModifyList, string changeValue)
         {
             throw new System.NotImplementedException();
         }
@@ -95,6 +97,16 @@ namespace CSVDatabasePlugin
         public IList<string> GetDatabaseFileExtension()
         {
             return new List<string> { ".csv" };
+        }
+
+        public bool DeleteRecord(int index)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool UpdateRecord(int index, IList<string> valuesOfRecord)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

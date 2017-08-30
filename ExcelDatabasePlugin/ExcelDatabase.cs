@@ -25,23 +25,31 @@ namespace ExcelDatabasePlugin
             NamesOfTables = new List<string>();
         }
 
-        public void ConnectToDatabase(string pathOfFile)
+        public bool ConnectToDatabase(string FilePath)
         {
-            Stream fs = new FileStream(pathOfFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            var excelReader = ExcelReaderFactory.CreateReader(fs);
-            var excelDataSetConfiguration = new ExcelDataSetConfiguration
+            try
             {
-                UseColumnDataType = true,
-                ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration
+                Stream fs = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                var excelReader = ExcelReaderFactory.CreateReader(fs);
+                var excelDataSetConfiguration = new ExcelDataSetConfiguration
                 {
-                    EmptyColumnNamePrefix = "Column",
-                    UseHeaderRow = true
+                    UseColumnDataType = true,
+                    ConfigureDataTable = (tableReader) => new ExcelDataTableConfiguration
+                    {
+                        EmptyColumnNamePrefix = "Column",
+                        UseHeaderRow = true
+                    }
+                };
+                DatabaseSet = excelReader.AsDataSet(excelDataSetConfiguration);
+                foreach (DataTable table in DatabaseSet.Tables)
+                {
+                    NamesOfTables.Add(table.TableName);
                 }
-            };
-            DatabaseSet = excelReader.AsDataSet(excelDataSetConfiguration);
-            foreach (DataTable table in DatabaseSet.Tables)
+                return true;
+            }
+            catch (Exception)
             {
-                NamesOfTables.Add(table.TableName);
+                return false;
             }
         }
 
@@ -92,22 +100,22 @@ namespace ExcelDatabasePlugin
         }
         #endregion
 
-        public void AddRecord(DataRow Record)
+        public bool AddRecord(IList<string> valuesOfRecord)
         {
             throw new NotImplementedException();
         }
 
-        public void Reload()
+        public bool Reload()
         {
             throw new NotImplementedException();
         }
 
-        public void DisconnectFromDatabase()
+        public bool DisconnectFromDatabase()
         {
             throw new NotImplementedException();
         }
 
-        public int ChangeRecordsInColumn(int Column, IList<string> InputElements, string OutputElement)
+        public int ChangeRecordsInColumn(int Column, IList<string> valuesToModifyList, string changeValue)
         {
             throw new NotImplementedException();
         }
@@ -115,6 +123,16 @@ namespace ExcelDatabasePlugin
         public IList<string> GetDatabaseFileExtension()
         {
             return new List<string> { ".xls", ".xlsx" };
+        }
+
+        public bool DeleteRecord(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool UpdateRecord(int index, IList<string> valuesOfRecord)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -14,13 +14,15 @@ namespace StazisExtensibilityInterface
         #endregion
 
         #region Methods
-        void ConnectToDatabase(string FilePath);
-        void Reload();
-        void DisconnectFromDatabase();
         string GetTypeNameOfDatabaseFile();
-        void AddRecord(DataRow Record);
-        int ChangeRecordsInColumn(int Column, IList<string> InputElements, string OutputElement);
         IList<string> GetDatabaseFileExtension();
+        bool ConnectToDatabase(string filePath);
+        bool Reload();
+        bool AddRecord(IList<string> valuesOfRecord);
+        bool DeleteRecord(int index);
+        bool UpdateRecord(int index, IList<string> valuesOfRecord);
+        int ChangeRecordsInColumn(int column, IList<string> valuesToModifyList, string changeValue);
+        bool DisconnectFromDatabase();
         #endregion
     }
 }
