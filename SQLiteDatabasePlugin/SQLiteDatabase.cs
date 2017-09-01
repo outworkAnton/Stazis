@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -15,9 +16,12 @@ namespace SQLiteDatabasePlugin
         public string DatabasePath { get; set; }
         public int SelectedTableIndex { get; set; }
         public DataTable CurrentDataTable => DatabaseSet.Tables[SelectedTableIndex];
+        readonly SQLiteConnection _connection;
+        
 
         public SqLiteDatabase()
         {
+            _connection = (SQLiteConnection)SQLiteFactory.Instance.CreateConnection();
             NamesOfTables = new List<string>();
             DatabaseSet = new DataSet();
         }
@@ -32,25 +36,22 @@ namespace SQLiteDatabasePlugin
             try
             {
                 DatabasePath = filePath;
-                var connection = (SQLiteConnection)SQLiteFactory.Instance.CreateConnection();
-                var adapter = new SQLiteDataAdapter();
-                connection.ConnectionString = "Data Source = " + DatabasePath;
-                connection.Open();
-                var tmpadapter = new SQLiteDataAdapter("SELECT name FROM sqlite_master WHERE type = 'table'", connection);
+                DatabaseSet.DataSetName = Path.GetFileNameWithoutExtension(DatabasePath);
+                SQLiteDataAdapter adapter = new SQLiteDataAdapter();
+                _connection.ConnectionString = "Data Source = " + DatabasePath;
+                _connection.Open();
+                var tmpadapter = new SQLiteDataAdapter("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE '%sqlite%'", _connection);
                 DataTable tmpDt = new DataTable();
                 tmpadapter.Fill(tmpDt);
                 foreach (DataRow row in tmpDt.Rows)
                 {
-                    if (!row.ItemArray.GetValue(0).ToString().Contains("sqlite")) NamesOfTables.Add(row.ItemArray.GetValue(0).ToString());
+                    var tableName = row.ItemArray.GetValue(0).ToString();
+                    NamesOfTables.Add(tableName);
+                    var tempAdapter = new SQLiteDataAdapter("select * from " + tableName, _connection);
+                    DataTable tmpdt = new DataTable(tableName);
+                    tempAdapter.Fill(tmpdt);
+                    DatabaseSet.Tables.Add(tmpdt);
                 }
-                foreach (string table in NamesOfTables)
-                {
-                    adapter = new SQLiteDataAdapter("select * from " + table, connection);
-                    DataTable tmpdt = new DataTable();
-                    adapter.Fill(tmpdt);
-                    DatabaseSet.Tables.Add(tmpdt.Copy());
-                }
-                connection.Close();
                 return true;
             }
             catch (System.Exception)
@@ -66,7 +67,15 @@ namespace SQLiteDatabasePlugin
 
         public bool DisconnectFromDatabase()
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                _connection.Close();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
         public bool AddRecord(IList<string> valuesOfRecord)

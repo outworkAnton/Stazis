@@ -38,7 +38,7 @@ namespace Stazis
 		{
 			try 
 			{
-                AppSettings.Default.Upgrade();
+//                AppSettings.Default.Upgrade();
 			    AppSettings.Default.SupportedDatabaseTypes = string.Join("|", _stazisDatabaseFactory.GetSupportedFormats());
 				_recentForm = new RecentAndDirectives();
 				_recentForm.ShowDialog();
