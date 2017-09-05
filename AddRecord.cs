@@ -1,5 +1,6 @@
 ﻿using StazisExtensibilityInterface;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Windows.Forms;
 
@@ -10,7 +11,7 @@ namespace Stazis
     /// </summary>
     public partial class AddRecord : Form
 	{
-        public IExtensibility DB { get; set; }
+        public IExtensibility Db { get; set; }
 		
 		public AddRecord()
 		{
@@ -20,12 +21,18 @@ namespace Stazis
 		void ConvertColumnNames()
 		{
 			dataGridView1.Columns.Add("Values", "Значение");
-			for (int i = 0; i < DB.CurrentDataTable.Columns.Count; i++) 
+			for (int i = 0; i < Db.CurrentDataTable.Columns.Count; i++) 
 			{
-				dataGridView1.Rows.Add();
-				dataGridView1.Rows[i].HeaderCell.Value = DB.CurrentDataTable.Columns[i].ColumnName;
-			}
-			dataGridView1.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders);
+                dataGridView1.Rows.Add();
+                dataGridView1.Rows[i].HeaderCell.Value = Db.CurrentDataTable.Columns[i].ColumnName;
+                if (Db.CurrentDataTable.Columns[i].AutoIncrement)
+                {
+                    dataGridView1.Rows[i].Cells[0].Value = "This field increments automatically";
+                    dataGridView1.Rows[i].ReadOnly = true;
+                }
+                dataGridView1.Rows[i].Cells[0].ValueType = Db.CurrentDataTable.Columns[i].DataType;
+            }
+            dataGridView1.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders);
 			if (dataGridView1.RowHeadersWidth > dataGridView1.Width / 2)
 				dataGridView1.RowHeadersWidth = dataGridView1.Width / 2;
 			dataGridView1.Columns[0].Width = dataGridView1.Width - dataGridView1.RowHeadersWidth;
@@ -42,46 +49,61 @@ namespace Stazis
 		
 		bool SaveRowToList()
 		{
-			
-			DataRow tmpRow = DB.CurrentDataTable.NewRow();
-			for (int i = 0; i < dataGridView1.Rows.Count; i++)
+            var values = new List<dynamic>();
+            for (int i = 0; i < dataGridView1.Rows.Count; i++)
 			{
 				object row = dataGridView1.Rows[i].Cells[0].Value;
 				try 
 				{
-					switch (Type.GetTypeCode(DB.CurrentDataTable.Columns[i].DataType))
+                    if (Db.CurrentDataTable.Columns[i].AutoIncrement) continue;
+					switch (Type.GetTypeCode(Db.CurrentDataTable.Columns[i].DataType))
 					{
-						case TypeCode.DateTime: 
-							tmpRow[i] = Convert.ToDateTime(row);
+						case TypeCode.DateTime:
+							values.Add(Convert.ToDateTime(row));
 							break;
-						case TypeCode.Double: 
-							tmpRow[i] = Convert.ToDouble(row);
+						case TypeCode.Double:
+                            values.Add(Convert.ToDouble(row));
 							break;
+                        case TypeCode.Int32:
+                            values.Add(Convert.ToInt32(row));
+                            break;
 						case TypeCode.String: 
 							if (row == null)
-								tmpRow[i] = string.Empty;
+                                values.Add(string.Empty);
 							else
-								tmpRow[i] = row.ToString();
+                                values.Add(row.ToString());
 							break;
 						default:
-							tmpRow[i] = DBNull.Value;
+                            values.Add(DBNull.Value);
 							break;
 					}
-				} 
-				catch (FormatException exc) 
+                    if (!Db.CurrentDataTable.Columns[i].AllowDBNull && row == null) throw new ArgumentNullException();
+                }
+                catch (FormatException exc) 
 				{
 					dataGridView1[0, i].Selected = true;
 					MessageBox.Show(string.Format("Значение строки {0} не соответствует типу данных в базе данных\n" +
 					                              "(Тип вводимых данных: {1}, тип значений базы данных: {2})\n" +
 					                              "Исправьте формат вводимых данных и повторите попытку сохранения\nСлужебная информация: {3}", 
-					                              (i + 1), row.GetType(), DB.CurrentDataTable.Columns[i].DataType, exc.StackTrace));
+					                              (i + 1), row.GetType(), Db.CurrentDataTable.Columns[i].DataType, exc.StackTrace));
 					return false;
 				}
+                catch (ArgumentNullException arg)
+                {
+                    dataGridView1[0, i].Selected = true;
+                    MessageBox.Show(string.Format("Значение строки {0} не может быть пустым", i));
+                    return false;
+                }
 			}
-			if (string.IsNullOrWhiteSpace(string.Join("", tmpRow.ItemArray)))
-				return false;
-			DB.CurrentDataTable.Rows.Add(tmpRow);
-				return true;
+            if (values.TrueForAll(x => string.IsNullOrWhiteSpace(x.ToString())))
+            {
+                return false;
+            }
+            else
+            {
+                Db.AddRecord(values);
+                return true;
+            }
 		}
 		
 		void AddRecord_Load(object sender, EventArgs e)

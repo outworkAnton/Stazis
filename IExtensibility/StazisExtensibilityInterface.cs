@@ -17,8 +17,9 @@ namespace StazisExtensibilityInterface
         string GetTypeNameOfDatabaseFile();
         IList<string> GetDatabaseFileExtension();
         bool ConnectToDatabase(string filePath);
+        string GetDatabaseConnectionStatus();
         bool Reload();
-        bool AddRecord(IList<string> valuesOfRecord);
+        bool AddRecord(IList<dynamic> valuesOfRecord);
         bool DeleteRecord(int index);
         bool UpdateRecord(int index, IList<string> valuesOfRecord);
         int ChangeRecordsInColumn(int column, IList<string> valuesToModifyList, string changeValue);

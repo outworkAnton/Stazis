@@ -5,6 +5,7 @@ using System.Data.SQLite;
 using System.IO;
 using StazisExtensibilityInterface;
 using System.ComponentModel.Composition;
+using System.Linq;
 
 namespace SQLiteDatabasePlugin
 {
@@ -49,6 +50,8 @@ namespace SQLiteDatabasePlugin
                     NamesOfTables.Add(tableName);
                     var tempAdapter = new SQLiteDataAdapter("select * from " + tableName, _connection);
                     DataTable tmpdt = new DataTable(tableName);
+                    tempAdapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+                    tempAdapter.MissingMappingAction = MissingMappingAction.Passthrough;
                     tempAdapter.Fill(tmpdt);
                     DatabaseSet.Tables.Add(tmpdt);
                 }
@@ -58,6 +61,11 @@ namespace SQLiteDatabasePlugin
             {
                 return false;
             }
+        }
+
+        public string GetDatabaseConnectionStatus()
+        {
+            return _connection.State.ToString();
         }
 
         public bool Reload()
@@ -78,9 +86,41 @@ namespace SQLiteDatabasePlugin
             }
         }
 
-        public bool AddRecord(IList<string> valuesOfRecord)
+        public bool AddRecord(IList<dynamic> valuesOfRecord)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                DataRow newRow = CurrentDataTable.NewRow();
+                for (var i = 0; i < CurrentDataTable.Columns.Count; i++)
+                {
+                    if (!CurrentDataTable.Columns[i].AutoIncrement)
+                    {
+                        newRow[i] = valuesOfRecord[i];
+                    }
+                }
+                CurrentDataTable.Rows.Add(newRow);
+                var tempAdapter = new SQLiteDataAdapter("select * from " + CurrentDataTable.TableName, _connection)
+                    {
+                        AcceptChangesDuringUpdate = true
+                    };
+                SaveChangesToDatabase(tempAdapter);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        void SaveChangesToDatabase(SQLiteDataAdapter tempAdapter)
+        {
+            using (SQLiteTransaction transaction = _connection.BeginTransaction())
+            {
+                SQLiteCommandBuilder commandBuilder = new SQLiteCommandBuilder(tempAdapter);
+                tempAdapter.UpdateCommand = commandBuilder.GetUpdateCommand();
+                tempAdapter.Update(CurrentDataTable);
+                transaction.Commit();
+            }
         }
 
         public int ChangeRecordsInColumn(int column, IList<string> valuesToModifyList, string changeValue)

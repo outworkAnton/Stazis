@@ -53,6 +53,11 @@ namespace ExcelDatabasePlugin
             }
         }
 
+        public string GetDatabaseConnectionStatus()
+        {
+            throw new NotImplementedException();
+        }
+
         public string GetTypeNameOfDatabaseFile()
         {
             return "Книга MS Excel";
@@ -100,9 +105,9 @@ namespace ExcelDatabasePlugin
         }
         #endregion
 
-        public bool AddRecord(IList<string> valuesOfRecord)
+        public bool AddRecord(IList<dynamic> valuesOfRecord)
         {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
 
         public bool Reload()

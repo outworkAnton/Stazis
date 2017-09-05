@@ -887,19 +887,23 @@ namespace Stazis
 			tmpDataTable.Columns.RemoveAt(columnIndex);
 			MaindataGrid.DataSource = tmpDataTable;
 			TimeSpan span = perfWatch.Elapsed;
-			toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
+			toolStripStatusLabel2.Text = $"Время последней операции: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек";
 			MaindataGrid.CurrentCell = null;
 		}
 
         void добавитьЗаписьВИсточникToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //	AddRecord addRecForm = new AddRecord() { DB = DB };
-            //	addRecForm.ShowDialog();
+            	AddRecord addRecForm = new AddRecord() { Db = Db };
+            	addRecForm.ShowDialog();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			AppSettings.Default.Save();
+			if (Db.GetDatabaseConnectionStatus() == "Open")
+			{
+				Db.DisconnectFromDatabase();
+			}
 		}
 	}
 }

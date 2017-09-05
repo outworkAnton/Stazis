@@ -37,6 +37,11 @@ namespace CSVDatabasePlugin
             }
         }
 
+        public string GetDatabaseConnectionStatus()
+        {
+            throw new System.NotImplementedException();
+        }
+
         DataTable GetDataTableFromCSVFile(Stream fileStream)
         {
             var csvData = new DataTable();
@@ -84,7 +89,7 @@ namespace CSVDatabasePlugin
             throw new System.NotImplementedException();
         }
 
-        public bool AddRecord(IList<string> valuesOfRecord)
+        public bool AddRecord(IList<dynamic> valuesOfRecord)
         {
             throw new System.NotImplementedException();
         }
