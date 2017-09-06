@@ -84,6 +84,11 @@ namespace CSVDatabasePlugin
             throw new System.NotImplementedException();
         }
 
+        public bool Export(string filePath, bool onlyCurrentTable = false)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public bool DisconnectFromDatabase()
         {
             throw new System.NotImplementedException();

@@ -73,6 +73,11 @@ namespace SQLiteDatabasePlugin
             throw new System.NotImplementedException();
         }
 
+        public bool Export(string filePath, bool onlyCurrentTable = false)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool DisconnectFromDatabase()
         {
             try

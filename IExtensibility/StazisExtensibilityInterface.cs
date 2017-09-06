@@ -23,6 +23,7 @@ namespace StazisExtensibilityInterface
         bool DeleteRecord(int index);
         bool UpdateRecord(int index, IList<string> valuesOfRecord);
         int ChangeRecordsInColumn(int column, IList<string> valuesToModifyList, string changeValue);
+        bool Export(string filePath, bool onlyCurrentTable = false);
         bool DisconnectFromDatabase();
         #endregion
     }

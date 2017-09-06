@@ -70,7 +70,8 @@ namespace Stazis
 						_filtersForm = new ValueFilters();
 						_replacerForm = new Replacer(this);
 						TimeSpan span = perfWatch.Elapsed;
-						Text = string.Format("Статико-аналитический терминал \"Стазис\" - <<{0}>> - тип БД: {1}", Path.GetFileNameWithoutExtension(Db.DatabasePath), Db.GetTypeNameOfDatabaseFile());
+						Text =
+							$"Статико-аналитический терминал \"Стазис\" - <<{Path.GetFileNameWithoutExtension(Db.DatabasePath)}>> - тип БД: {Db.GetTypeNameOfDatabaseFile()}";
 						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
 					}
 					else
@@ -333,7 +334,8 @@ namespace Stazis
 				perfWatch.Start();
 				DataOperations.ChangeColumnType(MaindataGrid,Db.CurrentDataTable, MaindataGrid.CurrentCell.ColumnIndex, typeof(DateTime));
 				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
+				toolStripStatusLabel2.Text =
+					$"Время последней операции: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек";
 				contextMenuStrip1.Hide();
 				FormatDataGrid();
 			} 
@@ -453,7 +455,8 @@ namespace Stazis
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки по диапазону дат (с {0} по {1}) : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", start, end, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel1.Text =
+						$"Результаты выборки по диапазону дат (с {start} по {end}) : {MaindataGrid.Rows.Count} (Время загрузки: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек)";
 					MaindataGrid.CurrentCell = null;
 				}
 			} 
@@ -527,7 +530,8 @@ namespace Stazis
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Количество записей удовлетворяющих поисковому запросу '{0}' в столбце <{1}> : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", searchText, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel1.Text =
+						$"Количество записей удовлетворяющих поисковому запросу '{searchText}' в столбце <{columnName}> : {MaindataGrid.Rows.Count} (Время загрузки: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек)";
 					MaindataGrid.CurrentCell = null;
 				}
 			} 
@@ -625,7 +629,8 @@ namespace Stazis
 				}
 				toolStripProgressBar1.Visible = false;
 				TimeSpan spanUniq = perfUniq.Elapsed;
-				toolStripStatusLabel2.Text = string.Format("Время вычисления составило: {0} мин {1} сек {2} мсек",  spanUniq.Minutes, spanUniq.Seconds, spanUniq.Milliseconds);
+				toolStripStatusLabel2.Text =
+					$"Время вычисления составило: {spanUniq.Minutes} мин {spanUniq.Seconds} сек {spanUniq.Milliseconds} мсек";
 				_uniquesForm.ShowDialog(this);
 				if (_uniquesForm.DialogResult == DialogResult.Yes)
 				{
@@ -653,7 +658,8 @@ namespace Stazis
 					FormatDataGrid();
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки по запросу '{0}' в столбце <{1}> : {2} (Время загрузки: {3} мин {4} сек {5} мсек)", cellValue, columnName, MaindataGrid.Rows.Count, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel1.Text =
+						$"Результаты выборки по запросу '{cellValue}' в столбце <{columnName}> : {MaindataGrid.Rows.Count} (Время загрузки: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек)";
 					MaindataGrid.CurrentCell = null;
 				}
 			}
@@ -677,7 +683,8 @@ namespace Stazis
 				DataTable tmpDataTable = MaindataGrid.DataSource as DataTable;
 				DataOperations.ChangeColumnType(MaindataGrid, tmpDataTable, MaindataGrid.CurrentCell.ColumnIndex, typeof(string));
 				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
+				toolStripStatusLabel2.Text =
+					$"Время последней операции: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек";
 				contextMenuStrip1.Hide();
 				FormatDataGrid();
 			} 
@@ -701,7 +708,8 @@ namespace Stazis
 				DataTable tmpDataTable = (DataTable)MaindataGrid.DataSource;
 				DataOperations.ChangeColumnType(MaindataGrid, tmpDataTable, MaindataGrid.CurrentCell.ColumnIndex, typeof(double));
 				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек",span.Minutes, span.Seconds, span.Milliseconds);
+				toolStripStatusLabel2.Text =
+					$"Время последней операции: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек";
 				contextMenuStrip1.Hide();
 				FormatDataGrid();
 			} 
@@ -724,7 +732,8 @@ namespace Stazis
 					MaindataGrid.AutoResizeRows(DataGridViewAutoSizeRowsMode.DisplayedCells);
 					AppSettings.Default.AutoResizeRowHeight = true;
 					TimeSpan span = perfWatch.Elapsed;
-					toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек", span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel2.Text =
+						$"Время последней операции: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек";
 				}
 				else AppSettings.Default.AutoResizeRowHeight = false;
 			} 
@@ -746,7 +755,8 @@ namespace Stazis
 					MaindataGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.DisplayedCells);
 					AppSettings.Default.AutoResizeColumnWidth = true;
 					TimeSpan span = perfWatch.Elapsed;
-					toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек", span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel2.Text =
+						$"Время последней операции: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек";
 				}
 				else AppSettings.Default.AutoResizeColumnWidth = false;
 			} 
@@ -768,7 +778,8 @@ namespace Stazis
 					MaindataGrid.AutoResizeColumnHeadersHeight();
 					AppSettings.Default.AutoResizeColumnHeaderHeight = true;
 					TimeSpan span = perfWatch.Elapsed;
-					toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек", span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel2.Text =
+						$"Время последней операции: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек";
 				}
 				else AppSettings.Default.AutoResizeColumnHeaderHeight = false;
 			} 
@@ -790,7 +801,8 @@ namespace Stazis
 					MaindataGrid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);
 					AppSettings.Default.AutoResizeColumnHeaderWidth = true;
 					TimeSpan span = perfWatch.Elapsed;
-					toolStripStatusLabel2.Text = string.Format("Время последней операции: {0} мин {1} сек {2} мсек", span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel2.Text =
+						$"Время последней операции: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек";
 				}
 				else AppSettings.Default.AutoResizeColumnHeaderWidth = false;
 			} 
@@ -805,33 +817,24 @@ namespace Stazis
 		{
 			try 
 			{
-				//saveFileDialog1.Filter = DataOperations.GetExportFileTypes();
+				saveFileDialog1.Filter = AppSettings.Default.SupportedDatabaseTypes;
 				saveFileDialog1.FilterIndex = 0;
 				if (saveFileDialog1.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(saveFileDialog1.FileName))
 				{
 					Stopwatch perfWatch = new Stopwatch();
 					perfWatch.Start();
-					Task task1 = Task.Factory.StartNew( () => 
-                   	{
-                       	switch (Path.GetExtension(saveFileDialog1.FileName))
-                       	{
-							case ".xls":
-                       		case ".xlsx":
-				                DataOperations.ExportToExcel(MaindataGrid.DataSource as DataTable, saveFileDialog1.FileName, (saveFileDialog1.FilterIndex == 1) ? ".xls" : ".xlsx");                   			
-								break;
-							case ".csv":
-								DataOperations.ExportToCSV(MaindataGrid.DataSource as DataTable, saveFileDialog1.FileName);
-							break;
-				        }
-							
-			        });
+					Task task1 = Task.Factory.StartNew( () =>
+					{
+						_stazisDatabaseFactory.Export(saveFileDialog1.FileName);
+					});
 					while (!task1.IsCompleted)
 					{
 						toolStripStatusLabel2.Text = "Производится экспорт данных...";
 						Application.DoEvents();
 					}
 					TimeSpan span = perfWatch.Elapsed;
-					toolStripStatusLabel2.Text = string.Format("(Кликните, чтобы скрыть) Экспорт данных в файл {0} завершен. (Время выгрузки: {1} мин {2} сек {3} мсек)", saveFileDialog1.FileName, span.Minutes, span.Seconds, span.Milliseconds);
+					toolStripStatusLabel2.Text =
+						$"(Кликните, чтобы скрыть) Экспорт данных в файл {saveFileDialog1.FileName} завершен. (Время выгрузки: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек)";
 					MaindataGrid.CurrentCell = null;
 				}
 			} 

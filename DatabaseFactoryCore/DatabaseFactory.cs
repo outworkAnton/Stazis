@@ -47,6 +47,18 @@ namespace DatabaseFactoryCore
             throw new FileNotFoundException($"Plugin for {extensionOfFile} not found");
         }
 
+        public bool Export(string filePath, bool onlyCurrentTable = false)
+        {
+            var extensionOfFile = Path.GetExtension(filePath);
+            foreach (var plugin in Plugins)
+            {
+                if (!plugin.GetDatabaseFileExtension().Contains(extensionOfFile)) continue;
+                plugin.Export(filePath, onlyCurrentTable);
+                return true;
+            }
+            throw new IOException($"Can't export to {extensionOfFile} file format");
+        }
+
         public IList<string> GetSupportedFormats()
         {
             return (Plugins.Select(plugin => new {plugin, name = plugin.GetTypeNameOfDatabaseFile()})
