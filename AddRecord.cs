@@ -82,16 +82,15 @@ namespace Stazis
                 catch (FormatException exc) 
 				{
 					dataGridView1[0, i].Selected = true;
-					MessageBox.Show(string.Format("Значение строки {0} не соответствует типу данных в базе данных\n" +
-					                              "(Тип вводимых данных: {1}, тип значений базы данных: {2})\n" +
-					                              "Исправьте формат вводимых данных и повторите попытку сохранения\nСлужебная информация: {3}", 
-					                              (i + 1), row.GetType(), Db.CurrentDataTable.Columns[i].DataType, exc.StackTrace));
+					MessageBox.Show($"Значение строки {(i + 1)} не соответствует типу данных в базе данных\n" +
+					                $"(Тип вводимых данных: {row.GetType()}, тип значений базы данных: {Db.CurrentDataTable.Columns[i].DataType})\n" +
+					                $"Исправьте формат вводимых данных и повторите попытку сохранения\nСлужебная информация: {exc.StackTrace}");
 					return false;
 				}
                 catch (ArgumentNullException arg)
                 {
                     dataGridView1[0, i].Selected = true;
-                    MessageBox.Show(string.Format("Значение строки {0} не может быть пустым", i));
+                    MessageBox.Show($"Значение строки {i} не может быть пустым");
                     return false;
                 }
 			}

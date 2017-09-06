@@ -10,10 +10,28 @@ namespace DatabaseFactoryCore
 {
     public class DatabaseFactory
     {
-        #region Public Methods
-        public DatabaseFactory(string directoryOfPlugins)
+        private static DatabaseFactory _factory;
+        private static readonly object SyncRoot = new Object();
+        
+        private DatabaseFactory(string directoryOfPlugins)
         {
             GetAllPlugins(directoryOfPlugins);
+        }
+        #region Public Methods
+
+        public static DatabaseFactory GetFactory(string directoryOfPlugins)
+        {
+            if (_factory == null)
+            {
+                lock (SyncRoot)
+                {
+                    if (_factory == null)
+                    {
+                        _factory = new DatabaseFactory(directoryOfPlugins);
+                    }
+                }
+            }
+            return _factory;
         }
 
         public IExtensibility CreateDataBaseInstance(string filePath)

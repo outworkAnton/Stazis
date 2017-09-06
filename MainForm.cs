@@ -19,7 +19,7 @@ namespace Stazis
 {
 	public partial class MainForm : Form
 	{
-        readonly DatabaseFactory _stazisDatabaseFactory = new DatabaseFactory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"));
+        readonly DatabaseFactory _stazisDatabaseFactory = DatabaseFactory.GetFactory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"));
         public IExtensibility Db;
 		
 		string _appDir = Application.StartupPath;
