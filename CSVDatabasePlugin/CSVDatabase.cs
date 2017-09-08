@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
-using StazisExtensibilityInterface;
 using System.ComponentModel.Composition;
+using StazisExtensibilityInterface;
 
 namespace CSVDatabasePlugin
 {
-    [Export(typeof(IExtensibility))]
-    public class CSVDatabase : IExtensibility
+    [Export(typeof(IDatabaseExtensibility))]
+    public class CSVDatabase : IDatabaseExtensibility
     {
         public DataSet DatabaseSet { get; set; }
         public string DatabasePath { get; set; }
@@ -84,7 +84,7 @@ namespace CSVDatabasePlugin
             throw new System.NotImplementedException();
         }
 
-        public bool Export(string filePath, bool onlyCurrentTable = false)
+        public bool Export(IDatabaseExtensibility exportFrom, string filePath, bool onlyCurrentTable = false)
         {
             throw new System.NotImplementedException();
         }

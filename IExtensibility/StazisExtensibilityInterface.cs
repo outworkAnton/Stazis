@@ -5,6 +5,11 @@ namespace StazisExtensibilityInterface
 {
     public interface IExtensibility
     {
+        
+    }
+    
+    public interface IDatabaseExtensibility:IExtensibility
+    {
         #region Properties
         IList<string> NamesOfTables { get; set; }
         DataSet DatabaseSet { get; set; }
@@ -23,7 +28,7 @@ namespace StazisExtensibilityInterface
         bool DeleteRecord(int index);
         bool UpdateRecord(int index, IList<string> valuesOfRecord);
         int ChangeRecordsInColumn(int column, IList<string> valuesToModifyList, string changeValue);
-        bool Export(string filePath, bool onlyCurrentTable = false);
+        bool Export(IDatabaseExtensibility exportFrom, string filePath, bool onlyCurrentTable = false);
         bool DisconnectFromDatabase();
         #endregion
     }

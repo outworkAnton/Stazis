@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using StazisExtensibilityInterface;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -291,7 +292,7 @@ namespace DataOperationsModule
             }
         }
 
-        public static int ChangeRecords(IExtensibility dataBase, int Column, IList<string> InElements, string OutElement)
+        public static int ChangeRecords(IDatabaseExtensibility dataBase, int Column, IList<string> InElements, string OutElement)
         {
             int Proceed = 0;
             if (OutElement == "<пустое значение>")
@@ -310,7 +311,7 @@ namespace DataOperationsModule
             return Proceed;
         }
 
-        public static int CorrectColumnRecords(IExtensibility dataBase, int sheetIndex, int Column, CheckedListBox.CheckedItemCollection Parameters, bool ReplaceAlsoInSourceFile)
+        public static int CorrectColumnRecords(IDatabaseExtensibility dataBase, int sheetIndex, int Column, CheckedListBox.CheckedItemCollection Parameters, bool ReplaceAlsoInSourceFile)
         {
             int Proceed = 0;
             IWorkbook workbook = null;

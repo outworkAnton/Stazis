@@ -20,7 +20,7 @@ namespace Stazis
 	public partial class MainForm : Form
 	{
         readonly DatabaseFactory _stazisDatabaseFactory = DatabaseFactory.GetFactory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"));
-        public IExtensibility Db;
+        public IDatabaseExtensibility Db;
 		
 		string _appDir = Application.StartupPath;
 		ValueFilters _filtersForm;
@@ -38,7 +38,7 @@ namespace Stazis
 		{
 			try 
 			{
-//                AppSettings.Default.Upgrade();
+                AppSettings.Default.Upgrade();
 			    AppSettings.Default.SupportedDatabaseTypes = string.Join("|", _stazisDatabaseFactory.GetSupportedFormats());
 				_recentForm = new RecentAndDirectives();
 				_recentForm.ShowDialog();
@@ -70,16 +70,16 @@ namespace Stazis
 						_filtersForm = new ValueFilters();
 						_replacerForm = new Replacer(this);
 						TimeSpan span = perfWatch.Elapsed;
-						Text =
-							$"Статико-аналитический терминал \"Стазис\" - <<{Path.GetFileNameWithoutExtension(Db.DatabasePath)}>> - тип БД: {Db.GetTypeNameOfDatabaseFile()}";
-						toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+						Text = $"Статико-аналитический терминал \"Стазис\" - <<{Path.GetFileNameWithoutExtension(Db.DatabasePath)}>> - тип БД: {Db.GetTypeNameOfDatabaseFile()}";
+						toolStripStatusLabel1.Text = $"Всего записей в таблице: {MaindataGrid.Rows.Count} (Время загрузки: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек)";
 					}
 					else
 					{
-						_recentForm.Dispose();
+                        _recentForm.Dispose();
 					}
-				}
-				MaindataGrid.CurrentCell = null;
+                    AppSettings.Default.Save();
+                }
+                MaindataGrid.CurrentCell = null;
 			} 
 			catch (Exception exc) 
 			{
@@ -137,7 +137,7 @@ namespace Stazis
 			MaindataGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 		}
 
-        void GetTablesList(IExtensibility dB)
+        void GetTablesList(IDatabaseExtensibility dB)
 		{
 			tabControl1.TabPages.Clear();
 			foreach (string dTableName in dB.NamesOfTables)
@@ -179,7 +179,7 @@ namespace Stazis
 							break;
 					}
 					MaindataGrid.Columns[e.ColumnIndex].Selected = true;
-					if (Db is IExtensibility)
+					if (Db is IDatabaseExtensibility)
 						пакетныйЗаменительToolStripMenuItem.Enabled = true;
 					else 
 						пакетныйЗаменительToolStripMenuItem.Enabled = false;
@@ -280,7 +280,8 @@ namespace Stazis
 				MaindataGrid.DataSource = Db.CurrentDataTable;
 				FormatDataGrid();
 				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+				toolStripStatusLabel1.Text =
+					$"Всего записей в таблице: {MaindataGrid.Rows.Count} (Время загрузки: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек)";
 				MaindataGrid.CurrentCell = null;
 			}
 			catch (Exception exc)
@@ -313,7 +314,8 @@ namespace Stazis
 				FormatDataGrid();
 				toolStripProgressBar1.Visible = false;
 				TimeSpan span = perfWatch.Elapsed;
-				toolStripStatusLabel1.Text = string.Format("Всего записей в таблице: {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count);
+				toolStripStatusLabel1.Text =
+					$"Всего записей в таблице: {MaindataGrid.Rows.Count} (Время загрузки: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек)";
 			} 
 			catch (Exception exc) 
 			{
@@ -402,7 +404,8 @@ namespace Stazis
 					}
 					TimeSpan span = perfWatch.Elapsed;
 					toolStripStatusLabel2.Text = string.Empty;
-					toolStripStatusLabel1.Text = string.Format("Результаты выборки чисел {6} '{4}' в столбце <{5}> : {3} (Время загрузки: {0} мин {1} сек {2} мсек)", span.Minutes, span.Seconds, span.Milliseconds, MaindataGrid.Rows.Count, searchInteger, columnName, searchOption);
+					toolStripStatusLabel1.Text =
+						$"Результаты выборки чисел {searchOption} '{searchInteger}' в столбце <{columnName}> : {MaindataGrid.Rows.Count} (Время загрузки: {span.Minutes} мин {span.Seconds} сек {span.Milliseconds} мсек)";
 					MaindataGrid.CurrentCell = null;
 				}
 			} 
@@ -495,7 +498,7 @@ namespace Stazis
 			}
 			_replacerForm.Col = colIndex;
 			_replacerForm.ColName = MaindataGrid.Columns[colIndex].Name;
-			_replacerForm.checkBox1.Enabled = (Db is IExtensibility);
+			_replacerForm.checkBox1.Enabled = (Db is IDatabaseExtensibility);
 			_replacerForm.ShowDialog();
 		}
 
@@ -825,7 +828,7 @@ namespace Stazis
 					perfWatch.Start();
 					Task task1 = Task.Factory.StartNew( () =>
 					{
-						_stazisDatabaseFactory.Export(saveFileDialog1.FileName);
+						_stazisDatabaseFactory.Export(Db, saveFileDialog1.FileName);
 					});
 					while (!task1.IsCompleted)
 					{

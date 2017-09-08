@@ -6,13 +6,13 @@ using ExcelDataReader;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using StazisExtensibilityInterface;
 using System.ComponentModel.Composition;
+using StazisExtensibilityInterface;
 
 namespace ExcelDatabasePlugin
 {
-    [Export(typeof(IExtensibility))]
-    public class ExcelDatabase : IExtensibility
+    [Export(typeof(IDatabaseExtensibility))]
+    public class ExcelDatabase : IDatabaseExtensibility
     {
         public string DatabasePath { get; set; }
         public IList<string> NamesOfTables { get; set; }
@@ -58,7 +58,7 @@ namespace ExcelDatabasePlugin
 
         public string GetDatabaseConnectionStatus()
         {
-            throw new NotImplementedException();
+            return string.Empty;
         }
 
         public string GetTypeNameOfDatabaseFile()
@@ -76,24 +76,38 @@ namespace ExcelDatabasePlugin
             throw new NotImplementedException();
         }
 
-        public bool Export(string filePath, bool onlyCurrentTable)
+        public bool Export(IDatabaseExtensibility exportFrom, string filePath, bool onlyCurrentTable = false)
         {
             try
             {
-                using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                using (Stream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
                 {
-                    IWorkbook workbook = WorkbookFactory.Create(fs);
-                    if (onlyCurrentTable)
+                    IWorkbook workbook = null;
+                    if (Path.GetExtension(filePath) == ".xls")
                     {
-                        ISheet exportSheet = workbook.CreateSheet(CurrentDataTable.TableName);
-                        exportSheet = FillSheetFromTable(CurrentDataTable);
+                        workbook = new HSSFWorkbook();
                     }
                     else
                     {
-                        foreach (DataTable dataTable in DatabaseSet.Tables)
+                        workbook = new XSSFWorkbook();
+                    }
+                    if (onlyCurrentTable)
+                    {
+                        ISheet exportSheet = workbook.CreateSheet(exportFrom.CurrentDataTable.TableName);
+                        if (!FillSheetFromTable(ref exportSheet, exportFrom.CurrentDataTable))
+                        {
+                            throw new Exception();
+                        }
+                    }
+                    else
+                    {
+                        foreach (DataTable dataTable in exportFrom.DatabaseSet.Tables)
                         {
                             ISheet exportSheet = workbook.CreateSheet(dataTable.TableName);
-                            exportSheet = FillSheetFromTable(dataTable);
+                            if (!FillSheetFromTable(ref exportSheet, dataTable))
+                            {
+                                throw new Exception();
+                            }
                         }
                     }
                     workbook.Write(fs);
@@ -102,37 +116,43 @@ namespace ExcelDatabasePlugin
             }
             catch (Exception e)
             {
-                return false;
+                throw new Exception("Export failed: " + e.Message);
             }
         }
 
-        private ISheet FillSheetFromTable(DataTable dataTable)
+        private bool FillSheetFromTable(ref ISheet sheet, DataTable dataTable)
         {
-            ISheet tempSheet = null;
-            tempSheet.CreateRow(0);
-            for (int c = 0; c < dataTable.Columns.Count; c++)
+            try
             {
-                tempSheet.GetRow(0).CreateCell(c);
-                tempSheet.GetRow(0).GetCell(c).SetCellValue(dataTable.Columns[c].ColumnName);
-            }
-            for (int i = 0; i < dataTable.Rows.Count; i++)
-            {
-                if (tempSheet.GetRow(i + 1) == null)
-                    tempSheet.CreateRow(i + 1);
-                for (int j = 0; j < dataTable.Columns.Count; j++)
+                sheet.CreateRow(0);
+                for (int c = 0; c < dataTable.Columns.Count; c++)
                 {
-                    if (tempSheet.GetRow(i + 1).GetCell(j) == null)
-                        tempSheet.GetRow(i + 1).CreateCell(j);
-                    if (dataTable.Rows[i][j] != null)
-                        tempSheet.GetRow(i + 1).GetCell(j).SetCellValue(dataTable.Rows[i][j].ToString());
+                    sheet.GetRow(0).CreateCell(c);
+                    sheet.GetRow(0).GetCell(c).SetCellValue(dataTable.Columns[c].ColumnName);
                 }
+                for (int i = 0; i < dataTable.Rows.Count; i++)
+                {
+                    if (sheet.GetRow(i + 1) == null)
+                        sheet.CreateRow(i + 1);
+                    for (int j = 0; j < dataTable.Columns.Count; j++)
+                    {
+                        if (sheet.GetRow(i + 1).GetCell(j) == null)
+                            sheet.GetRow(i + 1).CreateCell(j);
+                        if (dataTable.Rows[i][j] != null)
+                            sheet.GetRow(i + 1).GetCell(j).SetCellValue(dataTable.Rows[i][j].ToString());
+                    }
+                }
+                return true;
             }
-            return tempSheet;
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         public bool DisconnectFromDatabase()
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public int ChangeRecordsInColumn(int Column, IList<string> valuesToModifyList, string changeValue)

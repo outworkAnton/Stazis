@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 namespace Stazis
 {
@@ -17,22 +18,31 @@ namespace Stazis
             InitializeComponent();
         }
 
-        public void GetRecentList()
+        void GetRecentList()
         {
             if (AppSettings.Default.RecentList != null)
             {
                 recentGrid.Columns[0].ValueType = typeof(DateTime);
                 recentGrid.Columns[0].SortMode = DataGridViewColumnSortMode.Programmatic;
+                var recordsFromSettings = new Dictionary<DateTime, string>();
                 foreach (var row in AppSettings.Default.RecentList)
                 {
                     var pair = row.Split('#');
-                    recentGrid.Rows.Add(pair);
+                    DateTime key = Convert.ToDateTime(pair[0]);
+                    string value = pair[1];
+                    if (recordsFromSettings.ContainsKey(key) || recordsFromSettings.ContainsValue(value))
+                    {
+                        AppSettings.Default.RecentList.Remove(row);
+                        continue;
+                    }
+                    recordsFromSettings.Add(key,value);
+                    recentGrid.Rows.Add(key, value);
                 }
                 recentGrid.Sort(recentGrid.Columns[0], ListSortDirection.Descending);
             }
         }
 
-        public static void SetRecentList(DataGridView Grid)
+        void SetRecentList(DataGridView Grid)
         {
             if (AppSettings.Default.RecentList == null)
             {
@@ -88,27 +98,27 @@ namespace Stazis
             }
         }
 
-        public void NewRecord()
+        void NewRecord()
         {
             openFileDialog1.Filter = AppSettings.Default.SupportedDatabaseTypes;
 			openFileDialog1.FilterIndex = 0;
             openFileDialog1.ShowDialog();
             if (!string.IsNullOrWhiteSpace(openFileDialog1.FileName))
             {
+                for (int i = 0; i < recentGrid.RowCount; i++)
+                {
+                    if (openFileDialog1.FileName.Equals(recentGrid[1, i].Value))
+                    {
+                        MessageBox.Show("Выбранный файл уже присутствует в списке", "Добавление дубликата", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                        recentGrid.CurrentCell = recentGrid[1, i];
+                        return;
+                    }
+                }
                 recentGrid.Rows.Insert(0, 1);
                 recentGrid[0, 0].Value = DateTime.Now.ToString();
-                if (!openFileDialog1.FileName.Equals(recentGrid[1, 0].Value))
-                {
-                    recentGrid[1, 0].Value = openFileDialog1.FileName; 
-                }
-                else
-                {
-                    MessageBox.Show("Выбранный файл уже присутствует в списке", "Добавление дубликата", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    recentGrid.Rows.RemoveAt(0);
-                    return;
-                }
+                recentGrid[1, 0].Value = openFileDialog1.FileName; 
                 PathOfDb = openFileDialog1.FileName;
-                DialogResult = DialogResult.OK;
+                recentGrid.CurrentCell = recentGrid[0, 0];
             }
         }
 
@@ -126,7 +136,6 @@ namespace Stazis
         {
             if (DialogResult == DialogResult.OK)
             SetRecentList(recentGrid);
-            AppSettings.Default.Save();
         }
 
         void новаяЗаписьToolStripMenuItem_Click(object sender, EventArgs e)
@@ -136,10 +145,15 @@ namespace Stazis
 
         void recentGrid_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            switch (e.KeyCode)
             {
-                SelectRecord();
-                DialogResult = DialogResult.OK;
+                case Keys.Enter:
+                    SelectRecord();
+                    DialogResult = DialogResult.OK;
+                    break;
+                case Keys.Delete:
+                    DeleteRecord();
+                    break;
             }
         }
 
@@ -159,13 +173,18 @@ namespace Stazis
 
         void удалитьЗаписьToolStripMenuItem_Click(object sender, EventArgs e)
         {
-        	if ((recentGrid.Rows.Count > 0))
+            DeleteRecord();
+        }
+
+        private void DeleteRecord()
+        {
+            if ((recentGrid.Rows.Count > 0))
             {
                 if (!string.IsNullOrEmpty(recentGrid.SelectedCells[0].Value.ToString()))
                 {
                     AppSettings.Default.RecentList.RemoveAt(recentGrid.SelectedCells[0].RowIndex);
-                    recentGrid.Rows.RemoveAt(recentGrid.SelectedCells[0].RowIndex);
                 }
+                recentGrid.Rows.RemoveAt(recentGrid.SelectedCells[0].RowIndex);
             }
             if (recentGrid.RowCount == 0)
             {

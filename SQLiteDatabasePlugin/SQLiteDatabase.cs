@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using StazisExtensibilityInterface;
 using System.ComponentModel.Composition;
-using System.Linq;
+using StazisExtensibilityInterface;
 
 namespace SQLiteDatabasePlugin
 {
-    [Export(typeof(IExtensibility))]
-    public class SqLiteDatabase : IExtensibility
+    [Export(typeof(IDatabaseExtensibility))]
+    public class SqLiteDatabase : IDatabaseExtensibility
     {
         public IList<string> NamesOfTables { get; set; }
         public DataSet DatabaseSet { get; set; }
@@ -73,7 +72,7 @@ namespace SQLiteDatabasePlugin
             throw new System.NotImplementedException();
         }
 
-        public bool Export(string filePath, bool onlyCurrentTable = false)
+        public bool Export(IDatabaseExtensibility exportFrom, string filePath, bool onlyCurrentTable = false)
         {
             throw new NotImplementedException();
         }

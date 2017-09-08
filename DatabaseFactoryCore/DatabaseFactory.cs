@@ -1,10 +1,10 @@
-﻿using StazisExtensibilityInterface;
-using System.IO;
+﻿using System.IO;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using StazisExtensibilityInterface;
 
 namespace DatabaseFactoryCore
 {
@@ -34,7 +34,7 @@ namespace DatabaseFactoryCore
             return _factory;
         }
 
-        public IExtensibility CreateDataBaseInstance(string filePath)
+        public IDatabaseExtensibility CreateDataBaseInstance(string filePath)
         {
             var extensionOfFile = Path.GetExtension(filePath);
             foreach (var plugin in Plugins)
@@ -47,13 +47,13 @@ namespace DatabaseFactoryCore
             throw new FileNotFoundException($"Plugin for {extensionOfFile} not found");
         }
 
-        public bool Export(string filePath, bool onlyCurrentTable = false)
+        public bool Export(IDatabaseExtensibility exportFrom, string filePath, bool onlyCurrentTable = false)
         {
             var extensionOfFile = Path.GetExtension(filePath);
             foreach (var plugin in Plugins)
             {
                 if (!plugin.GetDatabaseFileExtension().Contains(extensionOfFile)) continue;
-                plugin.Export(filePath, onlyCurrentTable);
+                plugin.Export(exportFrom, filePath, onlyCurrentTable);
                 return true;
             }
             throw new IOException($"Can't export to {extensionOfFile} file format");
@@ -72,8 +72,8 @@ namespace DatabaseFactoryCore
         #endregion
 
         #region PrivateMembers
-        [ImportMany(typeof(IExtensibility))]
-        List<IExtensibility> Plugins { get; set; }
+        [ImportMany(typeof(IDatabaseExtensibility))]
+        List<IDatabaseExtensibility> Plugins { get; set; }
 
         void GetAllPlugins(string pluginsDirectory)
         {
@@ -82,7 +82,7 @@ namespace DatabaseFactoryCore
             {
                 try
                 {
-                    Plugins = new List<IExtensibility>();
+                    Plugins = new List<IDatabaseExtensibility>();
                     container.ComposeParts(this);
                 }
                 catch (Exception ex)

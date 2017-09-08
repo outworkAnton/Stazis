@@ -1,8 +1,8 @@
-﻿using StazisExtensibilityInterface;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Windows.Forms;
+using StazisExtensibilityInterface;
 
 namespace Stazis
 {
@@ -11,7 +11,7 @@ namespace Stazis
     /// </summary>
     public partial class AddRecord : Form
 	{
-        public IExtensibility Db { get; set; }
+        public IDatabaseExtensibility Db { get; set; }
 		
 		public AddRecord()
 		{
